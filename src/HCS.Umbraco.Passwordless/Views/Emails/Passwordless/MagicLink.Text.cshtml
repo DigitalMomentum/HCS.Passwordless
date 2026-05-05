@@ -1,0 +1,13 @@
+﻿@model HCS.Umbraco.Passwordless.Notifications.Models.MagicLinkEmailModel
+@{
+    Layout = null;
+    var expiryMinutes = (int)Model.Expiry.TotalMinutes;
+}Hi @Model.MemberName,
+
+Click the link below to sign in to @Model.Branding.ProductName:
+
+@Model.Link
+
+This link expires in @expiryMinutes minutes and can only be used once.
+
+If you did not request this, you can safely ignore this email.

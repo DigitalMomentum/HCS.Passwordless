@@ -1,0 +1,33 @@
+@using Microsoft.AspNetCore.Authentication
+@{
+    ViewData["Title"] = "My account";
+}
+
+<div class="card">
+    <h1>Welcome back</h1>
+    <p>You are signed in as <strong>@User.Identity!.Name</strong>.</p>
+    <p style="margin-top:1.5rem;">
+        <a href="/logout" style="color:#c0392b;">Sign out</a>
+    </p>
+
+    <hr style="margin:2rem 0;border:none;border-top:1px solid #eee;" />
+
+    <h2 style="font-size:1.1rem;">Your claims</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:.9rem;">
+        <thead>
+            <tr>
+                <th style="text-align:left;padding:.4rem .6rem;border-bottom:1px solid #ddd;">Type</th>
+                <th style="text-align:left;padding:.4rem .6rem;border-bottom:1px solid #ddd;">Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var claim in User.Claims)
+            {
+                <tr>
+                    <td style="padding:.4rem .6rem;border-bottom:1px solid #f0f0f0;color:#777;word-break:break-all;">@claim.Type</td>
+                    <td style="padding:.4rem .6rem;border-bottom:1px solid #f0f0f0;word-break:break-all;">@claim.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

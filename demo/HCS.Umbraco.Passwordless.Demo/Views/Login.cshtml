@@ -1,0 +1,10 @@
+﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Login>
+@using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@{
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Node Name: @Model.Name</h1>
+
+@await Html.PartialAsync("Passwordless/LoginForm")

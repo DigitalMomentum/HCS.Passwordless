@@ -1,0 +1,148 @@
+﻿# HCS Passwordless for Umbraco
+
+Passwordless member authentication for **Umbraco 13**, distributed as NuGet packages. Three pluggable authentication methods — magic links, one-time passwords (OTP), and WebAuthn/FIDO2 passkeys — can be used individually or together.
+
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| `HCS.Umbraco.Passwordless` | Core library — magic link authentication |
+| `HCS.Umbraco.Passwordless.Otp` | Add-on — email OTP codes |
+| `HCS.Umbraco.Passwordless.WebAuthn` | Add-on — FIDO2/passkey authentication |
+
+## Requirements
+
+- .NET 8.0
+- Umbraco 13.x
+- An existing Umbraco member type
+
+## Quick Start
+
+### 1. Install
+
+```bash
+dotnet add package HCS.Umbraco.Passwordless
+# optional add-ons:
+dotnet add package HCS.Umbraco.Passwordless.Otp
+dotnet add package HCS.Umbraco.Passwordless.WebAuthn
+```
+
+### 2. Register services (`Program.cs`)
+
+```csharp
+builder.CreateUmbracoBuilder()
+    .AddBackOffice()
+    .AddWebsite()
+    .AddPasswordlessMembers()   // required — enables magic links
+    .AddPasswordlessOtp()       // optional
+    .AddPasswordlessWebAuthn()  // optional
+    .Build();
+```
+
+### 3. Map endpoints (`Program.cs`)
+
+```csharp
+app.MapPasswordlessMembers()
+    .WithOtp()       // omit if not installed
+    .WithWebAuthn(); // omit if not installed
+```
+
+### 4. Configure (`appsettings.json`)
+
+```json
+{
+  "HCS": {
+    "Authentication": {
+      "BasePath": "/umbraco/passwordless",
+      "LoginPath": "/login",
+      "PostLoginRedirectPath": "/member",
+      "RejectUnknownEmails": false,
+      "MagicLink": {
+        "Enabled": true,
+        "TokenLifespan": "00:15:00",
+        "SingleUse": true
+      },
+      "Notifications": {
+        "FromAddress": "noreply@example.com",
+        "FromName": "My Site"
+      }
+    }
+  }
+}
+```
+
+### 5. Add login UI
+
+In your login view, render the built-in partial:
+
+```cshtml
+@await Html.PartialAsync("Passwordless/LoginForm")
+```
+
+## Authentication Methods
+
+### Magic Links
+The core method. The user enters their email; a signed, single-use link is emailed to them. Clicking it signs them in instantly. Tokens are stored in distributed cache and validated server-side.
+
+### OTP (One-Time Password)
+An email is sent containing a short numeric code (default 6 digits). The user enters the code on a second screen. Includes configurable attempt limits and lockout.
+
+### WebAuthn / Passkeys
+FIDO2 hardware-backed authentication (Touch ID, Face ID, security keys). Requires credential registration before first sign-in. Credentials are stored in the Umbraco database via a migration.
+
+## Security Features
+
+- Constant-time token comparison to prevent timing attacks
+- Single-use tokens (invalidated on first use)
+- Sliding-window rate limiting — per-IP and per-email
+- Fake-work delay on all auth endpoints to flatten timing differences
+- `ReturnUrl` validation to prevent open redirects
+- SHA-256 token hashing in storage
+
+## Configuration Reference
+
+All settings live under `HCS:Authentication`. See individual package READMEs for full option tables.
+
+## Customising Email Templates
+
+Default templates are Razor partials shipped in the RCL. Override any template by adding a matching path under your host project's `/Views` folder:
+
+- `Views/Emails/Passwordless/MagicLink.cshtml`
+- `Views/Emails/Passwordless/MagicLink.Text.cshtml`
+- `Views/Emails/Passwordless/Otp.cshtml`
+- `Views/Emails/Passwordless/Otp.Text.cshtml`
+- `Views/Emails/Passwordless/_Layout.cshtml`
+
+## Project Structure
+
+```
+Passwordless.sln
+├── src/
+│   ├── HCS.Umbraco.Passwordless          # Core / magic links
+│   ├── HCS.Umbraco.Passwordless.Otp      # OTP add-on
+│   └── HCS.Umbraco.Passwordless.WebAuthn # WebAuthn add-on
+├── tests/
+│   └── HCS.Umbraco.Passwordless.Tests    # xUnit test suite
+└── demo/
+    └── HCS.Umbraco.Passwordless.Demo     # Full demo Umbraco site
+```
+
+## Building
+
+```bash
+dotnet build
+dotnet test
+```
+
+## Running the Demo
+
+```bash
+cd demo/HCS.Umbraco.Passwordless.Demo
+dotnet run
+```
+
+Then open `https://localhost:44391` and complete the Umbraco install. The demo exposes `/login` and `/member`.
+
+## License
+
+MIT — HCS Ltd / Nik Rimington

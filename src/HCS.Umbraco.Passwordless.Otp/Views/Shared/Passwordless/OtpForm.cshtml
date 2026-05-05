@@ -1,0 +1,14 @@
+<form id="pwl-otp-form" style="display:none;">
+    @Html.AntiForgeryToken()
+    <label for="pwl-otp-code">Enter your 6-digit code</label>
+    <input id="pwl-otp-code"
+           name="code"
+           type="text"
+           inputmode="numeric"
+           pattern="[0-9]{4,10}"
+           autocomplete="one-time-code"
+           maxlength="10"
+           style="display:block;width:100%;margin-top:4px;letter-spacing:6px;font-size:1.5rem;" />
+    <button type="submit" style="margin-top:8px;">Verify code</button>
+    <div id="pwl-otp-message" role="alert" style="margin-top:8px;"></div>
+</form>

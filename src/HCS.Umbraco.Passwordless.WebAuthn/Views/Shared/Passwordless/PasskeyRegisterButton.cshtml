@@ -1,0 +1,11 @@
+﻿<div id="pwl-passkey-register">
+    @Html.AntiForgeryToken()
+    <label for="pwl-passkey-nickname">Passkey nickname (optional)</label>
+    <input id="pwl-passkey-nickname" type="text" maxlength="64" placeholder="e.g. MacBook" style="display:block;margin-top:4px;" />
+    <button type="button" id="pwl-btn-register-passkey" style="margin-top:8px;">Add a passkey</button>
+    <div id="pwl-register-message" role="alert" style="margin-top:8px;"></div>
+</div>
+<script type="module">
+    import { initPasskeyRegister } from '~/App_Plugins/HCS.Passwordless/js/passwordless.js';
+    initPasskeyRegister(document.getElementById('pwl-passkey-register'));
+</script>

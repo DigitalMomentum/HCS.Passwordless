@@ -1,0 +1,12 @@
+﻿<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors Condition="'$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
+    <Authors>Nik Rimington (HCS)</Authors>
+    <Company>HCS</Company>
+    <Copyright>Copyright © HCS</Copyright>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+</Project>

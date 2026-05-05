@@ -1,0 +1,56 @@
+# Build outputs
+bin/
+obj/
+*.binlog
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+
+# Test results
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+
+# Umbraco generated / runtime
+**/umbraco/Data/
+**/umbraco/Logs/
+**/umbraco/medialibrary/
+App_Data/
+**/media/
+appsettings-schema*.json
+
+# Secrets / local config
+appsettings.Local.json
+appsettings.*.Local.json
+*.pfx
+*.p12
+secrets.json
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude local memory (project-scoped, not for repo)
+.claude/
