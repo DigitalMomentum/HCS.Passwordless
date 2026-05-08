@@ -1,25 +1,25 @@
-﻿# HCS.Umbraco.Passwordless — CLAUDE.md
+# HCS.Umbraco.Passwordless.MagicLink — CLAUDE.md
 
 ## Role
 
-Core RCL package. All other packages in this solution depend on it. Ships via NuGet.
+Add-on RCL package providing magic link sign-in for Umbraco members. Depends on `HCS.Umbraco.Passwordless.Core`. Ships via NuGet. Must not depend on the OTP or WebAuthn add-ons.
 
 ## Key namespaces
 
 | Namespace | Contents |
 |-----------|---------|
-| `Auth` | `IPasswordlessAuthFactor`, `MagicLinkAuthFactor` |
-| `Configuration` | `PasswordlessOptions`, `MagicLinkOptions`, `NotificationOptions`, `RateLimitOptions`, `BrandingOptions` |
-| `DependencyInjection` | `PasswordlessBuilderExtensions` — the single public entry point |
+| `Auth` | `MagicLinkAuthFactor` — implements `IPasswordlessAuthFactor` |
+| `Configuration` | `MagicLinkOptions`, `MagicLinkOptionsValidator` |
+| `DependencyInjection` | `MagicLinkBuilderExtensions` — the public entry point |
 | `Endpoints` | Minimal API endpoints for magic link request/verify |
-| `Notifications` | `EmailNotificationSender`, `RazorViewRenderer` |
-| `RateLimiting` | `SlidingWindowRateLimiter` |
-| `Security` | `ConstantTime`, `Sha256`, `MagicLinkTokenProvider` |
-| `Services` | `ISingleUseTokenStore`, `IMemberLookupService`, `IPasswordlessSignInService` |
+| `Notifications` | `EmailNotificationSender`, `IPasswordlessNotificationSender` |
+| `Security` | `MagicLinkTokenProvider` |
+
+Shared infrastructure (`ISingleUseTokenStore`, `IPasswordlessRateLimiter`, `IMemberLookupService`, etc.) lives in `HCS.Umbraco.Passwordless.Core`.
 
 ## Configuration binding
 
-Options bind from `HCS:Authentication`. The section name constant is `PasswordlessOptions.SectionName`. Never use `Umbraco:*`.
+Magic link options bind from `HCS:Authentication:MagicLink`. Section name constant is `MagicLinkOptions.SectionName`. Never use `Umbraco:*`.
 
 ## Critical security rules
 
@@ -31,26 +31,19 @@ Options bind from `HCS:Authentication`. The section name constant is `Passwordle
 
 ## Service registration
 
-All services use `TryAdd*` so host projects can override. The public API surface is `AddPasswordlessMembers()` on `IUmbracoBuilder` and `MapPasswordlessMembers()` on `IEndpointRouteBuilder`.
-
-## Email templates
-
-Views shipped inside the RCL at `Views/Emails/Passwordless/` and `Views/Shared/Passwordless/`. Host overrides take precedence because Umbraco's view engine checks the host project first. Use `RazorViewRenderer` to render views to strings — do not call `IEmailService` directly.
+Entry point is `AddPasswordlessMagicLink()` on `IUmbracoBuilder`. It calls `services.AddPasswordlessCoreOnce()` first to register shared infrastructure idempotently, then registers magic-link-specific services with `TryAdd*` so host projects can override.
 
 ## Token provider
 
 `MagicLinkTokenProvider` is registered as an ASP.NET Core Identity token provider under the name `TokenProviderNames.MagicLink`. Its lifespan is configured from `MagicLinkOptions.TokenLifespan` at startup, not at runtime.
 
-## Add-on extension points
+## Email templates
 
-Add-ons extend the system by:
-1. Implementing `IPasswordlessAuthFactor` and registering it with `TryAddEnumerable`.
-2. Adding their own endpoints via a `With*()` fluent method on the endpoint builder.
-3. Optionally implementing their own `ISingleUseTokenStore` variant.
+Views shipped inside the RCL at `Views/Emails/Passwordless/` and `Views/Shared/Passwordless/`. Host overrides take precedence because Umbraco's view engine checks the host project first. Use `RazorViewRenderer` (from Core) to render views to strings.
 
 ## What not to change without careful review
 
-- `ConstantTime.cs` — any change here is a security regression risk.
-- `FakeWork.cs` — removing the await on the error path removes timing protection.
-- `DistributedCacheSingleUseTokenStore` — the consume operation must remain atomic.
-- `ReturnUrlValidator` — all allowlist/denylist logic must stay in sync with tests.
+- `ConstantTime.cs` (in Core) — any change here is a security regression risk.
+- `FakeWork.cs` (in Core) — removing the await on the error path removes timing protection.
+- `DistributedCacheSingleUseTokenStore` (in Core) — the consume operation must remain atomic.
+- `ReturnUrlValidator` (in Core) — all allowlist/denylist logic must stay in sync with tests.

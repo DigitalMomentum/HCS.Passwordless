@@ -2,7 +2,7 @@
 
 ## Role
 
-Add-on RCL package. Depends on `HCS.Umbraco.Passwordless` (core). Ships via NuGet. Must never be a dependency of the core package.
+Add-on RCL package. Depends on `HCS.Umbraco.Passwordless.Core`. Ships via NuGet. Must not depend on the MagicLink or WebAuthn packages.
 
 ## Key namespaces
 
@@ -29,7 +29,7 @@ Options bind from `HCS:Authentication:Otp`. Do not introduce a separate top-leve
 
 ## Service registration
 
-Entry point is `AddPasswordlessOtp()` on `IUmbracoBuilder`, called after `AddPasswordlessMembers()`. Endpoints are registered via `WithOtp()` on the `PasswordlessEndpointBuilder` returned by `MapPasswordlessMembers()`.
+Entry point is `AddPasswordlessOtp()` on `IUmbracoBuilder`. It calls `services.AddPasswordlessCoreOnce()` internally, so it can be registered independently without needing `AddPasswordlessMagicLink()` first. Endpoints are registered via `WithOtp()` on the `PasswordlessEndpointBuilder` returned by `MapPasswordlessMembers()`.
 
 ## Attempt counter semantics
 

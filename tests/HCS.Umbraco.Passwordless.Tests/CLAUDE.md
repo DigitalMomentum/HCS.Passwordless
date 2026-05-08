@@ -2,7 +2,7 @@
 
 ## Role
 
-xUnit test project for the core and OTP packages. No WebAuthn tests yet (FIDO2 library requires real authenticator hardware for meaningful integration testing).
+xUnit test project for the core, magic link, OTP, and WebAuthn packages.
 
 ## Test frameworks
 
@@ -20,7 +20,7 @@ xUnit test project for the core and OTP packages. No WebAuthn tests yet (FIDO2 l
 **Do not test here:**
 - Umbraco internals (CMS, database, member store) — substitute all Umbraco interfaces
 - Email delivery — substitute `IPasswordlessNotificationSender` / `IOtpNotificationSender`
-- WebAuthn / FIDO2 hardware flows
+- Full FIDO2 hardware attestation/assertion flows — use `DistributedCacheChallengeStoreTests` and `WebAuthnOptionsValidatorTests` for the testable seams instead
 
 ## Naming convention
 
@@ -39,4 +39,4 @@ Any change to `ConstantTime`, `Sha256`, `ReturnUrlValidator`, `SlidingWindowRate
 
 ## Current coverage baseline
 
-~104 tests, all passing. Do not merge code that breaks existing tests or reduces coverage on the security primitives listed above.
+~121 tests, all passing. Coverage includes: Core infrastructure, MagicLink options/auth factor, OTP flow, WebAuthn options validator, WebAuthn auth factor, challenge store single-use invariant, and member-deleted credential cleanup. Do not merge code that breaks existing tests or reduces coverage on the security primitives listed above.

@@ -1,11 +1,11 @@
-﻿# HCS.Umbraco.Passwordless
+# HCS.Umbraco.Passwordless.MagicLink
 
-Core passwordless authentication library for Umbraco 13. Provides **magic link** sign-in for Umbraco members with built-in rate limiting, single-use tokens, and a branded email notification system.
+Magic link sign-in for Umbraco 13 members. Part of the HCS Passwordless suite. Provides email-based one-click authentication with built-in rate limiting, single-use tokens, and a branded email notification system.
 
 ## Installation
 
 ```bash
-dotnet add package HCS.Umbraco.Passwordless
+dotnet add package HCS.Umbraco.Passwordless.MagicLink
 ```
 
 ## Setup
@@ -16,7 +16,7 @@ dotnet add package HCS.Umbraco.Passwordless
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
-    .AddPasswordlessMembers()
+    .AddPasswordlessMagicLink()
     .Build();
 ```
 
@@ -32,14 +32,12 @@ app.MapPasswordlessMembers();
 {
   "HCS": {
     "Authentication": {
-      "BasePath": "/umbraco/passwordless",
       "LoginPath": "/login",
       "PostLoginRedirectPath": "/member",
       "RejectUnknownEmails": false,
       "MagicLink": {
         "Enabled": true,
-        "TokenLifespan": "00:15:00",
-        "SingleUse": true
+        "TokenLifespan": "00:15:00"
       },
       "RateLimits": {
         "PerIpRequestsPerMinute": 10,
@@ -74,7 +72,6 @@ app.MapPasswordlessMembers();
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `BasePath` | string | `/umbraco/passwordless` | Prefix for all auth API endpoints |
 | `LoginPath` | string | `/login` | URL of the login page |
 | `PostLoginRedirectPath` | string | `/` | Redirect after successful sign-in |
 | `RejectUnknownEmails` | bool | `false` | Return an error for unrecognised emails (vs. silent success) |
@@ -85,7 +82,6 @@ app.MapPasswordlessMembers();
 |-----|------|---------|-------------|
 | `Enabled` | bool | `true` | Enable/disable magic link flow |
 | `TokenLifespan` | TimeSpan | `00:15:00` | How long a link remains valid |
-| `SingleUse` | bool | `true` | Invalidate token after first use |
 
 ### `HCS:Authentication:RateLimits`
 
@@ -124,7 +120,7 @@ Views/
 
 ## Replacing Services
 
-All core services are registered with `TryAdd*`, so you can replace any of them in DI before calling `AddPasswordlessMembers`:
+All services are registered with `TryAdd*`, so you can replace any of them in DI before calling `AddPasswordlessMagicLink`:
 
 ```csharp
 services.AddScoped<IPasswordlessNotificationSender, MyCustomSender>();
@@ -134,7 +130,7 @@ Key replaceable services:
 
 | Interface | Default implementation | Purpose |
 |-----------|----------------------|---------|
-| `IPasswordlessNotificationSender` | `EmailNotificationSender` | Send auth emails |
+| `IPasswordlessNotificationSender` | `EmailNotificationSender` | Send magic link emails |
 | `ISingleUseTokenStore` | `DistributedCacheSingleUseTokenStore` | Token persistence |
 | `IPasswordlessRateLimiter` | `SlidingWindowRateLimiter` | Rate limiting |
 | `IMemberLookupService` | `MemberLookupService` | Resolve member by email |

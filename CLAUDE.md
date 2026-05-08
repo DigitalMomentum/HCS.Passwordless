@@ -2,15 +2,16 @@
 
 ## What this is
 
-A HCS-branded NuGet library suite for passwordless Umbraco 13 member authentication. Three Razor Class Library (RCL) packages: core magic-link, OTP add-on, WebAuthn add-on. All delivered via NuGet; the demo site is for manual verification only.
+A HCS-branded NuGet library suite for passwordless Umbraco 13 member authentication. Four packages: a shared core (infrastructure only), magic link, OTP add-on, and WebAuthn add-on. All delivered via NuGet; the demo site is for manual verification only.
 
 ## Solution layout
 
 ```
-src/HCS.Umbraco.Passwordless          # core — magic link, token store, rate limiter
-src/HCS.Umbraco.Passwordless.Otp      # add-on — email OTP
-src/HCS.Umbraco.Passwordless.WebAuthn # add-on — FIDO2 passkeys
-tests/HCS.Umbraco.Passwordless.Tests  # xUnit suite (~104 tests)
+src/HCS.Umbraco.Passwordless.Core     # shared infrastructure — token store, rate limiter, sign-in
+src/HCS.Umbraco.Passwordless.MagicLink # magic link auth (depends on Core)
+src/HCS.Umbraco.Passwordless.Otp      # add-on — email OTP (depends on Core)
+src/HCS.Umbraco.Passwordless.WebAuthn # add-on — FIDO2 passkeys (depends on Core)
+tests/HCS.Umbraco.Passwordless.Tests  # xUnit suite (~121 tests)
 demo/HCS.Umbraco.Passwordless.Demo    # runnable Umbraco 13 site
 ```
 
@@ -36,21 +37,23 @@ dotnet test --filter "Category=Otp"  # subset
 
 ## Dependency rules
 
-- The core package (`HCS.Umbraco.Passwordless`) has **no dependency** on the add-ons.
-- Both add-ons depend on the core. The OTP and WebAuthn packages must **not** depend on each other.
-- The demo may reference all three.
+- `HCS.Umbraco.Passwordless.Core` has **no dependency** on any add-on package.
+- All three add-on packages (`MagicLink`, `Otp`, `WebAuthn`) depend on Core. They must **not** depend on each other.
+- The demo may reference all four.
 
 ## Registration pattern
 
-Services are wired via `IUmbracoBuilder` extension methods. Each package has one entry-point method:
+Services are wired via `IUmbracoBuilder` extension methods. Each add-on package has one entry-point method; register only the ones you need:
 
 ```csharp
 builder.CreateUmbracoBuilder()
-    .AddPasswordlessMembers()   // core (PasswordlessBuilderExtensions)
-    .AddPasswordlessOtp()       // OTP  (OtpBuilderExtensions)
-    .AddPasswordlessWebAuthn()  // WebAuthn (WebAuthnBuilderExtensions)
+    .AddPasswordlessMagicLink()  // magic link (MagicLinkBuilderExtensions)
+    .AddPasswordlessOtp()        // OTP         (OtpBuilderExtensions)
+    .AddPasswordlessWebAuthn()   // WebAuthn    (WebAuthnBuilderExtensions)
     .Build();
 ```
+
+Each `AddX()` method calls `services.AddPasswordlessCoreOnce()` internally, so core infrastructure is registered exactly once regardless of call order or how many add-ons are installed.
 
 Endpoints are mapped separately after `BootUmbracoAsync`:
 

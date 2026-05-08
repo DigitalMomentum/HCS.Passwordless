@@ -2,7 +2,7 @@
 
 ## Role
 
-Add-on RCL package for FIDO2/WebAuthn passkey authentication. Depends on `HCS.Umbraco.Passwordless` (core). Ships via NuGet. Must not depend on the OTP add-on.
+Add-on RCL package for FIDO2/WebAuthn passkey authentication. Depends on `HCS.Umbraco.Passwordless.Core`. Ships via NuGet. Must not depend on the MagicLink or OTP packages.
 
 ## Key namespaces
 
@@ -34,7 +34,7 @@ Credentials are stored in a custom Umbraco DB table added by `AddPasswordlessMem
 
 ## Service registration
 
-Entry point is `AddPasswordlessWebAuthn()` on `IUmbracoBuilder`. Endpoints registered via `WithWebAuthn()` on the `PasswordlessEndpointBuilder`. `WebAuthnComposer` handles Umbraco notification wiring.
+Entry point is `AddPasswordlessWebAuthn()` on `IUmbracoBuilder`. It calls `services.AddPasswordlessCoreOnce()` internally, so it can be registered independently without needing `AddPasswordlessMagicLink()` first. Endpoints registered via `WithWebAuthn()` on the `PasswordlessEndpointBuilder`. `WebAuthnComposer` handles Umbraco notification wiring.
 
 ## FIDO2 library
 
