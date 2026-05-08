@@ -1,4 +1,5 @@
 ﻿using Umbraco.Cms.Infrastructure.Migrations;
+using Umbraco.Cms.Infrastructure.Persistence.DatabaseModelDefinitions;
 
 namespace HCS.Umbraco.Passwordless.WebAuthn.Migrations;
 
@@ -11,7 +12,7 @@ internal sealed class AddPasswordlessMemberCredentials : MigrationBase
         if (TableExists("Passwordless_MemberCredentials")) return;
 
         Create.Table("Passwordless_MemberCredentials")
-            .WithColumn("Id").AsGuid().PrimaryKey().WithDefaultValue(SystemMethods.NewSequentialId)
+            .WithColumn("Id").AsGuid().PrimaryKey().WithDefaultValue(SystemMethods.NewGuid)
             .WithColumn("MemberKey").AsGuid().NotNullable().Indexed("IX_Passwordless_MemberCredentials_MemberKey")
             .WithColumn("CredentialId").AsBinary(1024).NotNullable()
             .WithColumn("PublicKey").AsBinary(int.MaxValue).NotNullable()
@@ -23,8 +24,8 @@ internal sealed class AddPasswordlessMemberCredentials : MigrationBase
             .WithColumn("BackupEligible").AsBoolean().NotNullable().WithDefaultValue(false)
             .WithColumn("BackupState").AsBoolean().NotNullable().WithDefaultValue(false)
             .WithColumn("Nickname").AsString(64).Nullable()
-            .WithColumn("CreatedUtc").AsDateTime2().NotNullable()
-            .WithColumn("LastUsedUtc").AsDateTime2().Nullable()
+            .WithColumn("CreatedUtc").AsDateTime().NotNullable()
+            .WithColumn("LastUsedUtc").AsDateTime().Nullable()
             .WithColumn("AttestationFormat").AsString(32).Nullable()
             .Do();
 

@@ -1,4 +1,4 @@
-﻿using HCS.Umbraco.Passwordless.Configuration;
+using HCS.Umbraco.Passwordless.Configuration;
 
 namespace HCS.Umbraco.Passwordless.Tests.Common;
 
@@ -10,40 +10,6 @@ public class PasswordlessOptionsValidatorTests
     public void Validate_Succeeds_ForValidDefaults()
     {
         var result = _sut.Validate(null, new PasswordlessOptions());
-        result.Succeeded.Should().BeTrue();
-    }
-
-    [Fact]
-    public void Validate_Fails_WhenMagicLinkEnabledAndTokenLifespanIsZero()
-    {
-        var opts = new PasswordlessOptions
-        {
-            MagicLink = new MagicLinkOptions { Enabled = true, TokenLifespan = TimeSpan.Zero }
-        };
-        var result = _sut.Validate(null, opts);
-        result.Succeeded.Should().BeFalse();
-        result.FailureMessage.Should().Contain("TokenLifespan");
-    }
-
-    [Fact]
-    public void Validate_Fails_WhenMagicLinkEnabledAndTokenLifespanIsNegative()
-    {
-        var opts = new PasswordlessOptions
-        {
-            MagicLink = new MagicLinkOptions { Enabled = true, TokenLifespan = TimeSpan.FromSeconds(-1) }
-        };
-        var result = _sut.Validate(null, opts);
-        result.Succeeded.Should().BeFalse();
-    }
-
-    [Fact]
-    public void Validate_Succeeds_WhenMagicLinkDisabledAndTokenLifespanIsZero()
-    {
-        var opts = new PasswordlessOptions
-        {
-            MagicLink = new MagicLinkOptions { Enabled = false, TokenLifespan = TimeSpan.Zero }
-        };
-        var result = _sut.Validate(null, opts);
         result.Succeeded.Should().BeTrue();
     }
 
@@ -68,18 +34,5 @@ public class PasswordlessOptionsValidatorTests
         };
         var result = _sut.Validate(null, opts);
         result.Succeeded.Should().BeFalse();
-    }
-
-    [Fact]
-    public void Validate_ReportsAllErrors_WhenMultipleInvalid()
-    {
-        var opts = new PasswordlessOptions
-        {
-            MagicLink = new MagicLinkOptions { Enabled = true, TokenLifespan = TimeSpan.Zero },
-            Notifications = new NotificationOptions { FromAddress = string.Empty }
-        };
-        var result = _sut.Validate(null, opts);
-        result.Succeeded.Should().BeFalse();
-        result.Failures.Should().HaveCount(2);
     }
 }

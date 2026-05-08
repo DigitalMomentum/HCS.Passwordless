@@ -8,7 +8,7 @@ builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
     .AddComposers()
-    .AddPasswordlessMembers()
+    .AddPasswordlessMagicLink()
     .AddPasswordlessOtp()
     //.AddPasswordlessWebAuthn()
     .Build();

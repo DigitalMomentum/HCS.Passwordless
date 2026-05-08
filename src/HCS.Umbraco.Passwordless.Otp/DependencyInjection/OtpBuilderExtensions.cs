@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using HCS.Umbraco.Passwordless.Auth;
+using HCS.Umbraco.Passwordless.DependencyInjection;
 using HCS.Umbraco.Passwordless.Otp.Auth;
 using HCS.Umbraco.Passwordless.Otp.Configuration;
 using HCS.Umbraco.Passwordless.Otp.Notifications;
@@ -21,6 +22,9 @@ public static class OtpBuilderExtensions
         Action<OtpBuilder>? configure = null)
     {
         var services = builder.Services;
+
+        // Shared core infrastructure (idempotent)
+        services.AddPasswordlessCoreOnce();
 
         services.AddOptions<OtpOptions>()
             .BindConfiguration(OtpOptions.SectionName);

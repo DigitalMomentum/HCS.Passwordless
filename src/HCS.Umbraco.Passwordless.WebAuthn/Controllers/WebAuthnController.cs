@@ -17,12 +17,13 @@ using HCS.Umbraco.Passwordless.WebAuthn.Storage;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Web.Common.Controllers;
+using Microsoft.Extensions.Logging;
 
 namespace HCS.Umbraco.Passwordless.WebAuthn.Controllers;
 
 [ApiController]
 [Route("auth/webauthn")]
-public class WebAuthnController : UmbracoApiController
+public partial class WebAuthnController : UmbracoApiController
 {
     private readonly IMemberManager _memberManager;
     private readonly IMemberLookupService _lookup;
@@ -34,6 +35,8 @@ public class WebAuthnController : UmbracoApiController
     private readonly IEventAggregator _events;
     private readonly IOptionsMonitor<PasswordlessOptions> _baseOpts;
     private readonly IOptionsMonitor<WebAuthnOptions> _waOpts;
+    private readonly ILogger<WebAuthnController> _logger;
+
 
     public WebAuthnController(
         IMemberManager memberManager,
@@ -45,7 +48,8 @@ public class WebAuthnController : UmbracoApiController
         IPasswordlessRateLimiter limiter,
         IEventAggregator events,
         IOptionsMonitor<PasswordlessOptions> baseOpts,
-        IOptionsMonitor<WebAuthnOptions> waOpts)
+        IOptionsMonitor<WebAuthnOptions> waOpts,
+        ILogger<WebAuthnController> logger)
     {
         _memberManager = memberManager;
         _lookup = lookup;
@@ -57,6 +61,8 @@ public class WebAuthnController : UmbracoApiController
         _events = events;
         _baseOpts = baseOpts;
         _waOpts = waOpts;
+        _logger = logger;
+
     }
 
     [HttpPost("register/options")]
@@ -123,7 +129,7 @@ public class WebAuthnController : UmbracoApiController
             return found is null;
         };
 
-        MakeNewCredentialResult result;
+        RegisteredPublicKeyCredential result;
         try
         {
             result = await _fido2.MakeNewCredentialAsync(
@@ -136,7 +142,9 @@ public class WebAuthnController : UmbracoApiController
         }
         catch (Exception ex)
         {
-            return BadRequest(new { error = "attestation_failed", detail = ex.Message });
+            var refGuid = Guid.NewGuid();
+            LogError(ex, refGuid);
+            return BadRequest(new { error = "attestation_failed", detail = $"Reference: {refGuid}" });
         }
 
         var credential = new StoredCredential(
@@ -146,9 +154,9 @@ public class WebAuthnController : UmbracoApiController
             PublicKey: result.PublicKey,
             UserHandle: member.Key.ToByteArray(),
             SignatureCounter: result.SignCount,
-            CredType: result.Type ?? "public-key",
-            AaGuid: new Guid(result.AaGuid),
-            Transports: result.Transport is not null ? string.Join(",", result.Transport) : null,
+            CredType: "public-key",
+            AaGuid: result.AaGuid,
+            Transports: result.Transports is not null ? string.Join(",", result.Transports) : null,
             BackupEligible: result.IsBackupEligible,
             BackupState: result.IsBackedUp,
             Nickname: state.Nickname,
@@ -176,7 +184,7 @@ public class WebAuthnController : UmbracoApiController
 
         if (string.IsNullOrWhiteSpace(dto.Email))
         {
-            allowList = new List<PublicKeyCredentialDescriptor>();
+            allowList = [];
             isDecoy = false;
         }
         else
@@ -187,7 +195,7 @@ public class WebAuthnController : UmbracoApiController
                 var credentials = await _store.GetByMemberAsync(member.Key, ct);
                 if (credentials.Count > 0)
                 {
-                    allowList = credentials.Select(c => new PublicKeyCredentialDescriptor(c.CredentialId)).ToList();
+                    allowList = [.. credentials.Select(c => new PublicKeyCredentialDescriptor(c.CredentialId))];
                     memberKey = member.Key;
                     isDecoy = false;
                 }
@@ -204,7 +212,11 @@ public class WebAuthnController : UmbracoApiController
             }
         }
 
-        var assertionOptions = _fido2.GetAssertionOptions(allowList, waOpts.UserVerification);
+        var assertionOptions = _fido2.GetAssertionOptions(new GetAssertionOptionsParams
+        {
+            AllowedCredentials = allowList,
+            UserVerification = waOpts.UserVerification
+        });
 
         var ceremonyId = $"pwl:webauthn:sig:{Guid.NewGuid()}";
         var state = new AssertionCeremonyState(assertionOptions, memberKey, isDecoy);
@@ -231,7 +243,7 @@ public class WebAuthnController : UmbracoApiController
             return Unauthorized();
         }
 
-        var storedCredential = await _store.GetByCredentialIdAsync(dto.Assertion.Id, ct);
+        var storedCredential = await _store.GetByCredentialIdAsync(dto.Assertion.RawId, ct);
         if (storedCredential is null) return Unauthorized();
 
         var member = state.MemberKey.HasValue
@@ -258,7 +270,9 @@ public class WebAuthnController : UmbracoApiController
         }
         catch (Exception ex)
         {
-            return BadRequest(new { error = "assertion_failed", detail = ex.Message });
+            var refGuid = Guid.NewGuid();
+            LogError(ex, refGuid);
+            return BadRequest(new { error = "assertion_failed", detail = $"Reference: {refGuid}" });
         }
 
         if (result.SignCount != 0 && result.SignCount <= storedCredential.SignatureCounter)
@@ -284,9 +298,9 @@ public class WebAuthnController : UmbracoApiController
         var seed = HMACSHA256.HashData(
             Encoding.UTF8.GetBytes("decoy-secret"),
             Encoding.UTF8.GetBytes(email.ToLowerInvariant()));
-        return new List<PublicKeyCredentialDescriptor>
-        {
+        return
+        [
             new(seed[..32])
-        };
+        ];
     }
 }

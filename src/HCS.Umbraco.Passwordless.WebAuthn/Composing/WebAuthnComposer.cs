@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using HCS.Umbraco.Passwordless.WebAuthn.Migrations;
+﻿using HCS.Umbraco.Passwordless.WebAuthn.Migrations;
 using HCS.Umbraco.Passwordless.WebAuthn.Storage;
 using Umbraco.Cms.Core;
 using Umbraco.Cms.Core.Composing;
@@ -10,7 +9,6 @@ using Umbraco.Cms.Core.Notifications;
 using Umbraco.Cms.Core.Scoping;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Infrastructure.Migrations.Upgrade;
-using Umbraco.Cms.Infrastructure.Scoping;
 
 namespace HCS.Umbraco.Passwordless.WebAuthn.Composing;
 
@@ -44,7 +42,7 @@ internal sealed class MigrationStartedHandler : INotificationAsyncHandler<Umbrac
 
     public Task HandleAsync(UmbracoApplicationStartedNotification notification, CancellationToken ct)
     {
-        if (_runtimeState.Level < Umbraco.Cms.Core.RuntimeLevel.Run) return Task.CompletedTask;
+        if (_runtimeState.Level < RuntimeLevel.Run) return Task.CompletedTask;
 
         var plan = new PasswordlessMigrationPlan();
         var upgrader = new Upgrader(plan);

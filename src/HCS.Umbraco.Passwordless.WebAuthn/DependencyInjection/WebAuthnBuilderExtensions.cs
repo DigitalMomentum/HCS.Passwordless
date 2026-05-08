@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using HCS.Umbraco.Passwordless.Auth;
+using HCS.Umbraco.Passwordless.DependencyInjection;
 using HCS.Umbraco.Passwordless.WebAuthn.Auth;
 using HCS.Umbraco.Passwordless.WebAuthn.Configuration;
 using HCS.Umbraco.Passwordless.WebAuthn.Services;
@@ -20,6 +21,9 @@ public static class WebAuthnBuilderExtensions
     {
         var services = builder.Services;
 
+        // Shared core infrastructure (idempotent)
+        services.AddPasswordlessCoreOnce();
+
         services.AddOptions<WebAuthnOptions>()
             .BindConfiguration(WebAuthnOptions.SectionName);
         services.AddSingleton<IValidateOptions<WebAuthnOptions>, WebAuthnOptionsValidator>();
@@ -33,7 +37,7 @@ public static class WebAuthnBuilderExtensions
             var wa = opts.Value;
             fido.ServerDomain = wa.RpId ?? "localhost";
             fido.ServerName = wa.RpName;
-            fido.Origins = wa.Origins.Select(o => new Uri(o)).ToHashSet();
+            fido.Origins = wa.Origins;
             fido.TimestampDriftTolerance = 300_000;
         });
         services.TryAddSingleton<IFido2>(sp =>

@@ -1,15 +1,14 @@
-﻿using HCS.Umbraco.Passwordless.Auth;
+using HCS.Umbraco.Passwordless.Auth;
 using HCS.Umbraco.Passwordless.Configuration;
 
 namespace HCS.Umbraco.Passwordless.Tests.Common;
 
 public class MagicLinkAuthFactorTests
 {
-    private static IOptionsMonitor<PasswordlessOptions> MonitorFor(bool enabled)
+    private static IOptionsMonitor<MagicLinkOptions> MonitorFor(bool enabled)
     {
-        var opts = new PasswordlessOptions { MagicLink = new MagicLinkOptions { Enabled = enabled } };
-        var monitor = Substitute.For<IOptionsMonitor<PasswordlessOptions>>();
-        monitor.CurrentValue.Returns(opts);
+        var monitor = Substitute.For<IOptionsMonitor<MagicLinkOptions>>();
+        monitor.CurrentValue.Returns(new MagicLinkOptions { Enabled = enabled });
         return monitor;
     }
 
@@ -28,14 +27,14 @@ public class MagicLinkAuthFactorTests
     [Fact]
     public void IsEnabled_ReflectsLiveOptionChange()
     {
-        var opts = new PasswordlessOptions { MagicLink = new MagicLinkOptions { Enabled = true } };
-        var monitor = Substitute.For<IOptionsMonitor<PasswordlessOptions>>();
-        monitor.CurrentValue.Returns(_ => opts);
+        var mlOpts = new MagicLinkOptions { Enabled = true };
+        var monitor = Substitute.For<IOptionsMonitor<MagicLinkOptions>>();
+        monitor.CurrentValue.Returns(_ => mlOpts);
 
         var factor = new MagicLinkAuthFactor(monitor);
         factor.IsEnabled.Should().BeTrue();
 
-        opts.MagicLink.Enabled = false;
+        mlOpts.Enabled = false;
         factor.IsEnabled.Should().BeFalse();
     }
 }
