@@ -4,7 +4,7 @@ using HCS.Umbraco.Passwordless.Notifications;
 using HCS.Umbraco.Passwordless.RateLimiting;
 using HCS.Umbraco.Passwordless.Services;
 
-namespace HCS.Umbraco.Passwordless.DependencyInjection;
+namespace HCS.Umbraco.Passwordless.MagicLink.DependencyInjection;
 
 public sealed class MagicLinkBuilder
 {

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 
-namespace HCS.Umbraco.Passwordless.Configuration;
+namespace HCS.Umbraco.Passwordless.MagicLink.Configuration;
 
 internal sealed class MagicLinkOptionsValidator : IValidateOptions<MagicLinkOptions>
 {

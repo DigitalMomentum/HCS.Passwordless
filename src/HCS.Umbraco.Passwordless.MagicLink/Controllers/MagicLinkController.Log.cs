@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace HCS.Umbraco.Passwordless.Controllers;
+namespace HCS.Umbraco.Passwordless.MagicLink.Controllers;
 
 public partial class MagicLinkController
 {

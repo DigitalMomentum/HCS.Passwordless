@@ -3,12 +3,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using HCS.Umbraco.Passwordless.Auth;
-using HCS.Umbraco.Passwordless.Configuration;
+using HCS.Umbraco.Passwordless.DependencyInjection;
 using HCS.Umbraco.Passwordless.Notifications;
 using HCS.Umbraco.Passwordless.Security.TokenProviders;
+using HCS.Umbraco.Passwordless.MagicLink.Auth;
+using HCS.Umbraco.Passwordless.MagicLink.Configuration;
+using HCS.Umbraco.Passwordless.MagicLink.Notifications;
+using HCS.Umbraco.Passwordless.MagicLink.Security.TokenProviders;
 using Umbraco.Cms.Core.DependencyInjection;
 
-namespace HCS.Umbraco.Passwordless.DependencyInjection;
+namespace HCS.Umbraco.Passwordless.MagicLink.DependencyInjection;
 
 public static class MagicLinkBuilderExtensions
 {

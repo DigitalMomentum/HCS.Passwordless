@@ -1,6 +1,6 @@
 ﻿using HCS.Umbraco.Passwordless.Configuration;
 
-namespace HCS.Umbraco.Passwordless.Notifications.Models;
+namespace HCS.Umbraco.Passwordless.MagicLink.Notifications.Models;
 
 public sealed class MagicLinkEmailModel
 {

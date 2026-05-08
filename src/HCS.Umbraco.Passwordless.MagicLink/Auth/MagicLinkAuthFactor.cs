@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
-using HCS.Umbraco.Passwordless.Configuration;
+using HCS.Umbraco.Passwordless.Auth;
+using HCS.Umbraco.Passwordless.MagicLink.Configuration;
 
-namespace HCS.Umbraco.Passwordless.Auth;
+namespace HCS.Umbraco.Passwordless.MagicLink.Auth;
 
 internal sealed class MagicLinkAuthFactor : IPasswordlessAuthFactor
 {

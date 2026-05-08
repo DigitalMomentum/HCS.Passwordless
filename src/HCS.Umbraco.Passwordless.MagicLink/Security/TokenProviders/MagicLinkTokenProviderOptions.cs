@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using HCS.Umbraco.Passwordless.Security.TokenProviders;
+using Microsoft.AspNetCore.Identity;
 
-namespace HCS.Umbraco.Passwordless.Security.TokenProviders;
+namespace HCS.Umbraco.Passwordless.MagicLink.Security.TokenProviders;
 
 public sealed class MagicLinkTokenProviderOptions : DataProtectionTokenProviderOptions
 {

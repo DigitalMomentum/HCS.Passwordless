@@ -1,6 +1,6 @@
-﻿using HCS.Umbraco.Passwordless.DependencyInjection;
+﻿using HCS.Umbraco.Passwordless.MagicLink.DependencyInjection;
 using HCS.Umbraco.Passwordless.Otp.DependencyInjection;
-//using HCS.Umbraco.Passwordless.WebAuthn.DependencyInjection;
+using HCS.Umbraco.Passwordless.WebAuthn.DependencyInjection;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +10,7 @@ builder.CreateUmbracoBuilder()
     .AddComposers()
     .AddPasswordlessMagicLink()
     .AddPasswordlessOtp()
-    //.AddPasswordlessWebAuthn()
+    .AddPasswordlessWebAuthn()
     .Build();
 
 WebApplication app = builder.Build();

@@ -1,4 +1,4 @@
-﻿namespace HCS.Umbraco.Passwordless.Configuration;
+﻿namespace HCS.Umbraco.Passwordless.MagicLink.Configuration;
 
 public sealed class MagicLinkOptions
 {

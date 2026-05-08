@@ -4,16 +4,18 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using HCS.Umbraco.Passwordless.Configuration;
+using HCS.Umbraco.Passwordless.MagicLink.Configuration;
 using HCS.Umbraco.Passwordless.Endpoints.Dtos;
 using HCS.Umbraco.Passwordless.Endpoints.Shared;
 using HCS.Umbraco.Passwordless.Notifications;
+using HCS.Umbraco.Passwordless.MagicLink.Notifications;
 using HCS.Umbraco.Passwordless.RateLimiting;
 using HCS.Umbraco.Passwordless.Security.TokenProviders;
 using HCS.Umbraco.Passwordless.Services;
 using Umbraco.Cms.Core.Security;
 using Umbraco.Cms.Web.Common.Controllers;
 
-namespace HCS.Umbraco.Passwordless.Controllers;
+namespace HCS.Umbraco.Passwordless.MagicLink.Controllers;
 
 [ApiController]
 [Route("auth/magic-link")]

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Umbraco.Cms.Core.Security;
 
-namespace HCS.Umbraco.Passwordless.Security.TokenProviders;
+namespace HCS.Umbraco.Passwordless.MagicLink.Security.TokenProviders;
 
 public sealed class MagicLinkTokenProvider : DataProtectorTokenProvider<MemberIdentityUser>
 {
