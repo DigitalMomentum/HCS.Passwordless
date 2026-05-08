@@ -1,5 +1,5 @@
-using HCS.Umbraco.Passwordless.Auth;
-using HCS.Umbraco.Passwordless.Configuration;
+using HCS.Umbraco.Passwordless.MagicLink.Auth;
+using HCS.Umbraco.Passwordless.MagicLink.Configuration;
 
 namespace HCS.Umbraco.Passwordless.Tests.Common;
 

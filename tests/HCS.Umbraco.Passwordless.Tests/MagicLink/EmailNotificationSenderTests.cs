@@ -1,6 +1,7 @@
 ﻿using HCS.Umbraco.Passwordless.Configuration;
+using HCS.Umbraco.Passwordless.MagicLink.Notifications;
+using HCS.Umbraco.Passwordless.MagicLink.Notifications.Models;
 using HCS.Umbraco.Passwordless.Notifications;
-using HCS.Umbraco.Passwordless.Notifications.Models;
 using Umbraco.Cms.Core.Mail;
 using Umbraco.Cms.Core.Models.Email;
 using Umbraco.Cms.Core.Security;

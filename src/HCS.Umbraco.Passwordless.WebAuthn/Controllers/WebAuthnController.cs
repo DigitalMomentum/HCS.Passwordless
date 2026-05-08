@@ -79,6 +79,7 @@ public partial class WebAuthnController : UmbracoApiController
 
         var existing = await _store.GetByMemberAsync(member.Key, ct);
         var excludeList = existing.Select(c => new PublicKeyCredentialDescriptor(c.CredentialId)).ToList();
+        LogRegisterOptionsStarted(member.Key, excludeList.Count);
 
         var fido2User = new Fido2User
         {
@@ -106,6 +107,7 @@ public partial class WebAuthnController : UmbracoApiController
         var ceremonyId = $"pwl:webauthn:reg:{member.Key}:{Guid.NewGuid()}";
         var state = new RegistrationCeremonyState(createOptions, dto.Nickname, member.Key);
         await _challenges.PutAsync(ceremonyId, state, waOpts.ChallengeTtl, ct);
+        LogRegisterOptionsCeremonyCreated(member.Key);
 
         return Ok(new { CeremonyId = ceremonyId, Options = createOptions });
     }
@@ -122,7 +124,10 @@ public partial class WebAuthnController : UmbracoApiController
 
         var state = await _challenges.TakeAsync<RegistrationCeremonyState>(dto.CeremonyId, ct);
         if (state is null || state.MemberKey != member.Key)
+        {
+            LogRegisterCompleteInvalidCeremony(dto.CeremonyId);
             return BadRequest(new { error = "invalid_ceremony" });
+        }
 
         IsCredentialIdUniqueToUserAsyncDelegate isUnique = async (args, innerCt) =>
         {
@@ -182,6 +187,7 @@ public partial class WebAuthnController : UmbracoApiController
             AttestationFormat: result.AttestationFormat);
 
         var saved = await _store.AddAsync(credential, ct);
+        LogRegisterCredentialSaved(member.Key, saved.AaGuid, saved.AttestationFormat);
 
         return Ok(new CredentialView(
             saved.Id, saved.Nickname, null, saved.AaGuid,
@@ -198,6 +204,8 @@ public partial class WebAuthnController : UmbracoApiController
         List<PublicKeyCredentialDescriptor> allowList;
         Guid? memberKey = null;
         bool isDecoy;
+        bool memberFound = false;
+        int credentialCount = 0;
 
         if (string.IsNullOrWhiteSpace(dto.Email))
         {
@@ -209,7 +217,9 @@ public partial class WebAuthnController : UmbracoApiController
             var member = await _lookup.FindApprovedAsync(dto.Email, ct);
             if (member is not null)
             {
+                memberFound = true;
                 var credentials = await _store.GetByMemberAsync(member.Key, ct);
+                credentialCount = credentials.Count;
                 if (credentials.Count > 0)
                 {
                     allowList = [.. credentials.Select(c => new PublicKeyCredentialDescriptor(c.CredentialId))];
@@ -228,6 +238,8 @@ public partial class WebAuthnController : UmbracoApiController
                 isDecoy = true;
             }
         }
+
+        LogSignInOptionsCreated(!string.IsNullOrWhiteSpace(dto.Email), memberFound, credentialCount, isDecoy);
 
         var assertionOptions = _fido2.GetAssertionOptions(new GetAssertionOptionsParams
         {
@@ -249,32 +261,57 @@ public partial class WebAuthnController : UmbracoApiController
 
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         if (!await _limiter.TryAcquireAsync($"webauthn-signin-complete:ip:{ip}", TimeSpan.FromMinutes(1), 5, ct))
+        {
+            LogSignInRateLimited(ip);
             return StatusCode(429);
+        }
 
         var state = await _challenges.TakeAsync<AssertionCeremonyState>(dto.CeremonyId, ct);
-        if (state is null) return BadRequest(new { error = "invalid_ceremony" });
+        if (state is null)
+        {
+            LogSignInCeremonyNotFound(dto.CeremonyId);
+            return BadRequest(new { error = "invalid_ceremony" });
+        }
 
         if (state.IsDecoy)
         {
+            LogSignInDecoy();
             await FakeWork.DelayAsync(TimeSpan.FromMilliseconds(120), ct);
             return Unauthorized();
         }
 
         var rawId = WebEncoders.Base64UrlDecode(dto.Assertion.RawId);
         var storedCredential = await _store.GetByCredentialIdAsync(rawId, ct);
-        if (storedCredential is null) return Unauthorized();
+        if (storedCredential is null)
+        {
+            LogSignInCredentialNotFound();
+            return Unauthorized();
+        }
 
         var userHandle = dto.Assertion.Response.UserHandle is not null
             ? WebEncoders.Base64UrlDecode(dto.Assertion.Response.UserHandle)
             : null;
 
-        var member = state.MemberKey.HasValue
-            ? await _lookup.FindApprovedAsync(state.MemberKey.Value.ToString(), ct)
-            : await _lookup.FindApprovedByUserHandleAsync(userHandle ?? Array.Empty<byte>(), ct);
+        var memberLookupHandle = state.MemberKey.HasValue
+            ? state.MemberKey.Value.ToByteArray()
+            : userHandle ?? Array.Empty<byte>();
+        var member = await _lookup.FindApprovedByUserHandleAsync(memberLookupHandle, ct);
 
-        if (member is null) return Unauthorized();
-        if (state.MemberKey.HasValue && member.Key != state.MemberKey.Value) return Unauthorized();
-        if (storedCredential.MemberKey != member.Key) return Unauthorized();
+        if (member is null)
+        {
+            LogSignInMemberNotFound(state.MemberKey, userHandle is not null);
+            return Unauthorized();
+        }
+        if (state.MemberKey.HasValue && member.Key != state.MemberKey.Value)
+        {
+            LogSignInMemberKeyMismatch(state.MemberKey.Value, member.Key);
+            return Unauthorized();
+        }
+        if (storedCredential.MemberKey != member.Key)
+        {
+            LogSignInCredentialOwnerMismatch(storedCredential.MemberKey, member.Key);
+            return Unauthorized();
+        }
 
         var assertion = new AuthenticatorAssertionRawResponse
         {
@@ -313,6 +350,7 @@ public partial class WebAuthnController : UmbracoApiController
 
         if (result.SignCount != 0 && result.SignCount <= storedCredential.SignatureCounter)
         {
+            LogSignInCounterRegression(storedCredential.SignatureCounter, result.SignCount, storedCredential.MemberKey);
             await _events.PublishAsync(new PasskeyCounterRegressionNotification
             {
                 MemberKey = storedCredential.MemberKey,
@@ -325,6 +363,7 @@ public partial class WebAuthnController : UmbracoApiController
 
         await _store.UpdateAfterAssertionAsync(storedCredential.CredentialId, result.SignCount, DateTime.UtcNow, ct);
         await _signIn.SignInAndRotateAsync(member, isPersistent: true, authenticationMethod: "webauthn", ct: ct);
+        LogSignInSuccess(member.Key);
 
         return Ok(new { ok = true });
     }
