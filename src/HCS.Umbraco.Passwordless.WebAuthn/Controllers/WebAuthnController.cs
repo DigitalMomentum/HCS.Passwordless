@@ -4,6 +4,7 @@ using Fido2NetLib;
 using Fido2NetLib.Objects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using HCS.Umbraco.Passwordless.Configuration;
 using HCS.Umbraco.Passwordless.Endpoints.Shared;
@@ -129,13 +130,29 @@ public partial class WebAuthnController : UmbracoApiController
             return found is null;
         };
 
+        var attestation = new AuthenticatorAttestationRawResponse
+        {
+            Id = dto.Attestation.Id,
+            RawId = WebEncoders.Base64UrlDecode(dto.Attestation.RawId),
+            Type = PublicKeyCredentialType.PublicKey,
+            Response = new AuthenticatorAttestationRawResponse.AttestationResponse
+            {
+                AttestationObject = WebEncoders.Base64UrlDecode(dto.Attestation.Response.AttestationObject),
+                ClientDataJson = WebEncoders.Base64UrlDecode(dto.Attestation.Response.ClientDataJSON),
+                Transports = dto.Attestation.Response.Transports?
+                    .Select(t => Enum.TryParse<AuthenticatorTransport>(t, ignoreCase: true, out var v) ? (AuthenticatorTransport?)v : null)
+                    .OfType<AuthenticatorTransport>()
+                    .ToArray()
+            }
+        };
+
         RegisteredPublicKeyCredential result;
         try
         {
             result = await _fido2.MakeNewCredentialAsync(
                 new MakeNewCredentialParams
                 {
-                    AttestationResponse = dto.Attestation,
+                    AttestationResponse = attestation,
                     OriginalOptions = state.Options,
                     IsCredentialIdUniqueToUserCallback = isUnique
                 }, ct);
@@ -243,16 +260,35 @@ public partial class WebAuthnController : UmbracoApiController
             return Unauthorized();
         }
 
-        var storedCredential = await _store.GetByCredentialIdAsync(dto.Assertion.RawId, ct);
+        var rawId = WebEncoders.Base64UrlDecode(dto.Assertion.RawId);
+        var storedCredential = await _store.GetByCredentialIdAsync(rawId, ct);
         if (storedCredential is null) return Unauthorized();
+
+        var userHandle = dto.Assertion.Response.UserHandle is not null
+            ? WebEncoders.Base64UrlDecode(dto.Assertion.Response.UserHandle)
+            : null;
 
         var member = state.MemberKey.HasValue
             ? await _lookup.FindApprovedAsync(state.MemberKey.Value.ToString(), ct)
-            : await _lookup.FindApprovedByUserHandleAsync(dto.Assertion.Response.UserHandle ?? Array.Empty<byte>(), ct);
+            : await _lookup.FindApprovedByUserHandleAsync(userHandle ?? Array.Empty<byte>(), ct);
 
         if (member is null) return Unauthorized();
         if (state.MemberKey.HasValue && member.Key != state.MemberKey.Value) return Unauthorized();
         if (storedCredential.MemberKey != member.Key) return Unauthorized();
+
+        var assertion = new AuthenticatorAssertionRawResponse
+        {
+            Id = dto.Assertion.Id,
+            RawId = rawId,
+            Type = PublicKeyCredentialType.PublicKey,
+            Response = new AuthenticatorAssertionRawResponse.AssertionResponse
+            {
+                AuthenticatorData = WebEncoders.Base64UrlDecode(dto.Assertion.Response.AuthenticatorData),
+                ClientDataJson = WebEncoders.Base64UrlDecode(dto.Assertion.Response.ClientDataJson),
+                Signature = WebEncoders.Base64UrlDecode(dto.Assertion.Response.Signature),
+                UserHandle = userHandle
+            }
+        };
 
         VerifyAssertionResult result;
         try
@@ -260,7 +296,7 @@ public partial class WebAuthnController : UmbracoApiController
             result = await _fido2.MakeAssertionAsync(
                 new MakeAssertionParams
                 {
-                    AssertionResponse = dto.Assertion,
+                    AssertionResponse = assertion,
                     OriginalOptions = state.Options,
                     StoredPublicKey = storedCredential.PublicKey,
                     StoredSignatureCounter = storedCredential.SignatureCounter,
