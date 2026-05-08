@@ -166,6 +166,261 @@ export function initLoginForm(formEl) {
     });
 }
 
+export function initConditionalUi(containerEl) {
+    if (!containerEl) return;
+    if (!window.PublicKeyCredential) return;
+
+    const base = containerEl.dataset.pwlBase || '/auth';
+    const getReturnUrl = () => containerEl.dataset.returnUrl ?? '';
+    const btn = containerEl.querySelector('#pwl-conditional-passkey');
+
+    if (btn) btn.style.display = '';
+
+    async function signIn(mediation) {
+        const optResp = await fetch(`${base}/webauthn/signin/options`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: null }),
+        });
+        if (!optResp.ok) return false;
+
+        const { ceremonyId, options } = await optResp.json();
+        const publicKey = {
+            ...options,
+            challenge: b64uToBuffer(options.challenge),
+            allowCredentials: [],
+        };
+
+        const credential = await navigator.credentials.get(
+            mediation ? { publicKey, mediation } : { publicKey }
+        );
+        if (!credential) return false;
+
+        const completeResp = await fetch(`${base}/webauthn/signin/complete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                ceremonyId,
+                assertion: {
+                    id: bufferToB64u(credential.rawId),
+                    rawId: bufferToB64u(credential.rawId),
+                    type: credential.type,
+                    response: {
+                        authenticatorData: bufferToB64u(credential.response.authenticatorData),
+                        clientDataJson: bufferToB64u(credential.response.clientDataJSON),
+                        signature: bufferToB64u(credential.response.signature),
+                        userHandle: credential.response.userHandle
+                            ? bufferToB64u(credential.response.userHandle)
+                            : null,
+                    },
+                    extensions: credential.getClientExtensionResults?.() ?? {},
+                },
+            }),
+        });
+
+        if (completeResp.ok) {
+            window.location.href = getReturnUrl() || '/';
+            return true;
+        }
+        return false;
+    }
+
+    btn?.addEventListener('click', async function () {
+        this.disabled = true;
+        try {
+            await signIn();
+        } catch {
+            // user cancelled
+        } finally {
+            this.disabled = false;
+        }
+    });
+
+    if (typeof PublicKeyCredential.isConditionalMediationAvailable === 'function') {
+        PublicKeyCredential.isConditionalMediationAvailable()
+            .then(available => { if (available) signIn('conditional').catch(() => {}); });
+    }
+}
+
+export function initPasskeyRegister(containerEl) {
+    if (!containerEl) return;
+
+    const base = containerEl.dataset.pwlBase || '/auth';
+    const msgEl = containerEl.querySelector('#pwl-register-message');
+    const btn = containerEl.querySelector('#pwl-btn-register-passkey');
+
+    function antiforgeryToken() {
+        return containerEl.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+    }
+
+    function showMessage(text, isError) {
+        if (!msgEl) return;
+        msgEl.textContent = text;
+        msgEl.style.color = isError ? '#c00' : '#080';
+    }
+
+    btn?.addEventListener('click', async function () {
+        if (!window.PublicKeyCredential) {
+            showMessage('Your browser does not support passkeys.', true);
+            return;
+        }
+        const nickname = containerEl.querySelector('#pwl-passkey-nickname')?.value?.trim() || null;
+        this.disabled = true;
+        showMessage('');
+        try {
+            const optResp = await fetch(`${base}/webauthn/register/options`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': antiforgeryToken(),
+                },
+                body: JSON.stringify({ nickname }),
+            });
+            if (!optResp.ok) { showMessage('Could not start passkey registration.', true); return; }
+
+            const { ceremonyId, options } = await optResp.json();
+            const publicKey = {
+                ...options,
+                challenge: b64uToBuffer(options.challenge),
+                user: { ...options.user, id: b64uToBuffer(options.user.id) },
+                excludeCredentials: (options.excludeCredentials ?? []).map(c => ({
+                    ...c,
+                    id: b64uToBuffer(c.id),
+                })),
+            };
+
+            const credential = await navigator.credentials.create({ publicKey });
+            if (!credential) { showMessage('Passkey creation was cancelled.', true); return; }
+
+            const completeResp = await fetch(`${base}/webauthn/register/complete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': antiforgeryToken(),
+                },
+                body: JSON.stringify({
+                    ceremonyId,
+                    attestation: {
+                        id: bufferToB64u(credential.rawId),
+                        rawId: bufferToB64u(credential.rawId),
+                        type: credential.type,
+                        response: {
+                            attestationObject: bufferToB64u(credential.response.attestationObject),
+                            clientDataJSON: bufferToB64u(credential.response.clientDataJSON),
+                        },
+                        extensions: credential.getClientExtensionResults?.() ?? {},
+                    },
+                }),
+            });
+
+            if (completeResp.ok) {
+                showMessage('Passkey added successfully.');
+                const nicknameEl = containerEl.querySelector('#pwl-passkey-nickname');
+                if (nicknameEl) nicknameEl.value = '';
+                containerEl.dispatchEvent(new CustomEvent('pwl:passkey-registered'));
+            } else {
+                const data = await completeResp.json().catch(() => ({}));
+                showMessage(
+                    data.error === 'attestation_failed'
+                        ? 'Passkey registration failed. Please try again.'
+                        : 'Something went wrong. Please try again.',
+                    true);
+            }
+        } catch (err) {
+            showMessage(
+                err.name === 'NotAllowedError'
+                    ? 'Passkey creation was cancelled.'
+                    : 'Passkey registration failed.',
+                true);
+        } finally {
+            this.disabled = false;
+        }
+    });
+}
+
+export function initCredentialList(containerEl) {
+    if (!containerEl) return;
+
+    const base = containerEl.dataset.pwlBase || '/auth';
+    const ulEl = containerEl.querySelector('#pwl-creds-ul');
+    const loadingEl = containerEl.querySelector('#pwl-creds-loading');
+    const msgEl = containerEl.querySelector('#pwl-creds-message');
+
+    function antiforgeryToken() {
+        return containerEl.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+    }
+
+    function showMessage(text, isError) {
+        if (!msgEl) return;
+        msgEl.textContent = text;
+        msgEl.style.color = isError ? '#c00' : '#080';
+    }
+
+    function renderCredential(c) {
+        const li = document.createElement('li');
+        li.dataset.id = c.id;
+        li.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #eee;';
+
+        const label = document.createElement('span');
+        label.style.flex = '1';
+        label.textContent = c.nickname || 'Unnamed passkey';
+        if (c.lastUsedUtc) {
+            const sub = document.createElement('small');
+            sub.style.cssText = 'display:block;color:#666;';
+            sub.textContent = `Last used: ${new Date(c.lastUsedUtc).toLocaleDateString()}`;
+            label.appendChild(sub);
+        }
+
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.textContent = 'Remove';
+        delBtn.addEventListener('click', async () => {
+            if (!confirm(`Remove passkey "${c.nickname || 'Unnamed passkey'}"?`)) return;
+            delBtn.disabled = true;
+            const r = await fetch(`${base}/webauthn/credentials/${c.id}`, {
+                method: 'DELETE',
+                headers: { 'RequestVerificationToken': antiforgeryToken() },
+            });
+            if (r.ok) {
+                li.remove();
+                if (ulEl && ulEl.children.length === 0)
+                    ulEl.innerHTML = '<li>No passkeys registered.</li>';
+            } else if (r.status === 409) {
+                showMessage('Cannot remove the last sign-in method.', true);
+                delBtn.disabled = false;
+            } else {
+                showMessage('Could not remove passkey.', true);
+                delBtn.disabled = false;
+            }
+        });
+
+        li.appendChild(label);
+        li.appendChild(delBtn);
+        return li;
+    }
+
+    async function load() {
+        if (loadingEl) loadingEl.style.display = '';
+        if (ulEl) ulEl.innerHTML = '';
+        showMessage('');
+
+        const resp = await fetch(`${base}/webauthn/credentials`);
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (!resp.ok) { showMessage('Could not load passkeys.', true); return; }
+
+        const creds = await resp.json();
+        if (!ulEl) return;
+        if (creds.length === 0) {
+            ulEl.innerHTML = '<li>No passkeys registered.</li>';
+            return;
+        }
+        for (const c of creds) ulEl.appendChild(renderCredential(c));
+    }
+
+    load();
+    containerEl.addEventListener('pwl:passkey-registered', load);
+}
+
 function bufferToB64u(buf) {
     const bytes = new Uint8Array(buf);
     let s = '';
