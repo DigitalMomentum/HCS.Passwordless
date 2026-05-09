@@ -286,7 +286,7 @@ public partial class WebAuthnController : UmbracoApiController
         if (state.IsDecoy)
         {
             LogSignInDecoy();
-            await FakeWork.DelayAsync(TimeSpan.FromMilliseconds(120), ct);
+            await FakeWork.DelayAsync(_baseOpts.CurrentValue.RateLimits.FakeWorkDelay, ct);
             return Unauthorized();
         }
 
