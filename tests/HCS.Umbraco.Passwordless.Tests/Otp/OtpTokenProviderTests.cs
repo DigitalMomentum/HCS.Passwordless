@@ -37,6 +37,7 @@ public class OtpTokenProviderTests
     [InlineData(4)]
     [InlineData(6)]
     [InlineData(8)]
+    [InlineData(10)]
     public async Task GenerateAsync_ReturnsNumericCodeOfCorrectLength(int length)
     {
         var provider = CreateProvider(length);

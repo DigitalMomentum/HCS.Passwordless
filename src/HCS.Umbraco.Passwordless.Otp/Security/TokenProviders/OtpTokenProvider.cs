@@ -48,8 +48,12 @@ public sealed class OtpTokenProvider : IUserTwoFactorTokenProvider<MemberIdentit
 
     private static string GenerateNumericCode(int length)
     {
-        var max = (int)Math.Pow(10, length);
-        var value = RandomNumberGenerator.GetInt32(0, max);
+        // Use long to avoid int overflow for length == 10 (10^10 > int.MaxValue).
+        var max = (long)Math.Pow(10, length);
+        Span<byte> bytes = stackalloc byte[8];
+        RandomNumberGenerator.Fill(bytes);
+        var raw = BitConverter.ToUInt64(bytes);
+        var value = (long)(raw % (ulong)max);
         return value.ToString().PadLeft(length, '0');
     }
 

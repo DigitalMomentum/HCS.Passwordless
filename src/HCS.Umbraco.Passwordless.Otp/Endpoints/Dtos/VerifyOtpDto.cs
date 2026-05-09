@@ -1,3 +1,5 @@
-﻿namespace HCS.Umbraco.Passwordless.Otp.Endpoints.Dtos;
+using System.ComponentModel.DataAnnotations;
 
-public sealed record VerifyOtpDto(string? Email, string? Code, string? ReturnUrl);
+namespace HCS.Umbraco.Passwordless.Otp.Endpoints.Dtos;
+
+public sealed record VerifyOtpDto([MaxLength(254)] string? Email, string? Code, string? ReturnUrl);

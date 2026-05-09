@@ -13,6 +13,9 @@ internal sealed class MagicLinkOptionsValidator : IValidateOptions<MagicLinkOpti
         if (options.TokenLifespan <= TimeSpan.Zero)
             errors.Add("MagicLink.TokenLifespan must be positive.");
 
+        if (options.TokenLifespan > TimeSpan.FromHours(1))
+            errors.Add("MagicLink.TokenLifespan must not exceed 1 hour — longer values produce long-lived credentials.");
+
         if (!options.SingleUse)
             errors.Add("MagicLink.SingleUse must be true. Disabling single-use enforcement allows token replay for the entire TokenLifespan.");
 

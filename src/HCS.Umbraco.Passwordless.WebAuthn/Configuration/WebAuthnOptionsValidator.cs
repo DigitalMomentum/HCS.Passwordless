@@ -30,6 +30,9 @@ internal sealed class WebAuthnOptionsValidator : IValidateOptions<WebAuthnOption
         if (options.SignInCompletePerIpPerMinute <= 0)
             errors.Add("WebAuthn.SignInCompletePerIpPerMinute must be greater than zero.");
 
+        if (options.TimestampDriftToleranceMs is < 30_000 or > 600_000)
+            errors.Add("WebAuthn.TimestampDriftToleranceMs must be between 30000 (30 s) and 600000 (10 min).");
+
         return errors.Count > 0
             ? ValidateOptionsResult.Fail(errors)
             : ValidateOptionsResult.Success;

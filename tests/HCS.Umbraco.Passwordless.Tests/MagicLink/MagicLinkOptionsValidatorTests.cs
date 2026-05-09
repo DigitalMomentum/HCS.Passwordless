@@ -54,4 +54,21 @@ public class MagicLinkOptionsValidatorTests
         var result = _sut.Validate(null, opts);
         result.Succeeded.Should().BeTrue("disabled magic link should skip all validation");
     }
+
+    [Fact]
+    public void Validate_Fails_WhenTokenLifespanExceedsOneHour()
+    {
+        var opts = new MagicLinkOptions { Enabled = true, TokenLifespan = TimeSpan.FromHours(1).Add(TimeSpan.FromSeconds(1)) };
+        var result = _sut.Validate(null, opts);
+        result.Succeeded.Should().BeFalse();
+        result.FailureMessage.Should().Contain("TokenLifespan");
+    }
+
+    [Fact]
+    public void Validate_Succeeds_WhenTokenLifespanIsExactlyOneHour()
+    {
+        var opts = new MagicLinkOptions { Enabled = true, TokenLifespan = TimeSpan.FromHours(1) };
+        var result = _sut.Validate(null, opts);
+        result.Succeeded.Should().BeTrue("exactly 1 hour is the allowed upper bound");
+    }
 }

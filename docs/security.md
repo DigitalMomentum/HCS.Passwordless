@@ -140,6 +140,16 @@ If you are running multiple instances, see [Multi-Instance Deployments](multi-in
 
 The OTP code store (`IOtpCodeStore`) and WebAuthn challenge store (`IWebAuthnChallengeStore`) use `IDistributedCache`. Configure a shared Redis cache via `AddStackExchangeRedisCache` and they will coordinate across instances automatically.
 
+### Startup warning for in-process cache
+
+When the application starts, the library checks whether `IDistributedCache` resolves to the default `MemoryDistributedCache`. If it does, it logs a `Warning`-level message:
+
+```
+HCS Passwordless: IDistributedCache is using MemoryDistributedCache (in-process, node-local). ...
+```
+
+This warning is harmless on a genuine single-instance deployment and can be suppressed by raising the log level for `HCS.Umbraco.Passwordless` above `Warning`. On a multi-instance deployment, act on the warning before going live — replace `IDistributedCache` with a shared implementation as described in [Multi-Instance Deployments](multi-instance.md).
+
 ## Accepted risks and operator responsibilities
 
 The following risks are known, understood, and accepted by design. The library cannot resolve them on your behalf — they require action or judgement on your part as the operator.
@@ -161,6 +171,29 @@ The default `FakeWorkDelay` of 250ms is calibrated for fast, co-located SMTP. It
 **What this means:** If your email provider is slower than the fake delay (common with cross-region relays or shared transactional email services), an attacker who can make many requests will observe that unknown emails get a faster response than known ones, revealing which email addresses are registered.
 
 **What to do:** Measure the 95th-percentile delivery time of your transactional email provider and raise `FakeWorkDelay` to at least that value. For most cloud email providers 1–2 seconds is appropriate. This is an expected latency cost — every unauthenticated request to a `/request` endpoint will take at least that long.
+
+---
+
+### OTP per-account lockout can be used to deny service to a targeted member (M-9)
+
+The OTP attempt counter is keyed on member ID. An attacker who knows (or guesses) a member's email address can deliberately exhaust their OTP attempt budget, locking them out of OTP sign-in for `LockoutDuration`.
+
+**What this means:** This is intentional — per-account lockout is the [NIST SP 800-63B](https://pages.nist.gov/800-63-3/sp800-63b.html) recommended approach for preventing brute-force attacks. The alternative (per-IP lockout only) would allow distributed brute-force attacks that bypass the counter entirely.
+
+**What to do:** If the DoS risk is a concern for your deployment, consider:
+- Sending the member an email notification when their account is locked out (implement a handler for the lockout path in your own code — the library does not send one by default).
+- Reducing `LockoutDuration` to minimise the window of denial.
+- Requiring a second factor alongside OTP for high-value accounts.
+
+---
+
+### WebAuthn settings do not hot-reload (M-5)
+
+`RpId`, `Origins`, and other WebAuthn settings are captured once when the application starts and held for the lifetime of the process. Runtime changes to `appsettings.json` are ignored until the application is restarted.
+
+**What this means:** This is intentional and is the safer posture. If hot-reload were supported, an attacker with write access to the configuration source could inject a malicious origin and bypass passkey domain-binding guarantees mid-flight. Locking in the values at startup prevents this.
+
+**What to do:** Treat WebAuthn settings as deployment-time configuration. Any change to `HCS:Authentication:WebAuthn` (origins, RP ID, user verification policy, etc.) requires an application restart to take effect.
 
 ---
 
@@ -190,3 +223,6 @@ When the log level for `HCS.Umbraco.Passwordless` is set to `Debug`, log message
 | DDoS on sign-in endpoint | Per-IP rate limiting on all sign-in paths |
 | XSS via email footer | **Operator responsibility** — only use trusted hardcoded HTML in `FooterHtml` |
 | Security stamp leakage via logs | **Operator responsibility** — do not enable Debug logging in production |
+| WebAuthn config hot-reload | Intentionally disabled — restart required; documented in configuration guide |
+| Node-local cache on multi-node | Startup warning logged; configure a shared `IDistributedCache` (Redis) for multi-node |
+| OTP lockout DoS against specific members | Accepted trade-off; reduce `LockoutDuration` or add email notification on lockout |

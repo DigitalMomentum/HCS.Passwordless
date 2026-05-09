@@ -1,5 +1,7 @@
 # Multi-Instance Deployments
 
+> **Startup warning:** When the application starts, the library checks whether `IDistributedCache` resolves to the default `MemoryDistributedCache`. If it does, a `Warning`-level log message is emitted to remind you to configure a shared cache before deploying to a multi-node environment. If you are intentionally running a single instance you can safely ignore this message (or suppress it by setting the log level for `HCS.Umbraco.Passwordless` to `Error`).
+
 By default, the library uses in-process memory for two things: tracking whether a token has already been used, and counting wrong OTP attempts. This works correctly for a single Umbraco instance, but if you run multiple instances behind a load balancer — Azure App Service with scale-out, a Kubernetes deployment, or any setup where more than one web process serves traffic — each instance has its own memory and they cannot coordinate.
 
 The practical consequence is:

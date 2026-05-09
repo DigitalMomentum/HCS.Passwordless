@@ -10,7 +10,7 @@ internal sealed class DistributedCacheSingleUseTokenStore : ISingleUseTokenStore
 
     public async Task<bool> TryMarkUsedAsync(string tokenHash, TimeSpan ttl, CancellationToken ct = default)
     {
-        var key = $"pwl:ml-used:{tokenHash}";
+        var key = $"pwl:token-used:{tokenHash}";
         var existing = await _cache.GetStringAsync(key, ct);
         if (existing is not null) return false;
 

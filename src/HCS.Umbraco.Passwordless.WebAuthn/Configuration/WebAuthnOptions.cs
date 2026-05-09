@@ -31,4 +31,10 @@ public sealed class WebAuthnOptions
 
     /// <summary>Maximum sign-in complete requests per IP per minute (default 5).</summary>
     public int SignInCompletePerIpPerMinute { get; set; } = 5;
+
+    /// <summary>
+    /// Allowed clock-skew window for WebAuthn timestamp validation, in milliseconds.
+    /// Must be between 30 000 ms (30 s) and 600 000 ms (10 min). Default is 300 000 ms (5 min).
+    /// </summary>
+    public int TimestampDriftToleranceMs { get; set; } = 300_000;
 }

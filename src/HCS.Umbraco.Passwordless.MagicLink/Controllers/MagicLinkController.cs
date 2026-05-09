@@ -102,7 +102,7 @@ public partial class MagicLinkController : UmbracoApiController
         var safe = ReturnUrlValidator.Sanitize(returnUrl, options.PostLoginRedirectPath);
         var loginPath = $"{options.LoginPath}?error=expired-or-used&returnUrl={Uri.EscapeDataString(safe)}";
 
-        LogVerifyAttempt(email, returnUrl);
+        LogVerifyAttempt(email, safe);
 
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
         {

@@ -6,6 +6,7 @@ using HCS.Umbraco.Passwordless.Configuration;
 using HCS.Umbraco.Passwordless.Notifications;
 using HCS.Umbraco.Passwordless.RateLimiting;
 using HCS.Umbraco.Passwordless.Services;
+using Microsoft.Extensions.Hosting;
 
 namespace HCS.Umbraco.Passwordless.DependencyInjection;
 
@@ -32,10 +33,12 @@ public static class PasswordlessCoreServiceCollectionExtensions
 
         services.TryAddScoped<IRazorViewRenderer, RazorViewRenderer>();
         services.TryAddSingleton<ISingleUseTokenStore, InMemorySingleUseTokenStore>();
-        services.TryAddSingleton<IPasswordlessRateLimiter, SlidingWindowRateLimiter>();
+        services.TryAddSingleton<IPasswordlessRateLimiter, FixedWindowRateLimiter>();
         services.TryAddScoped<IMemberLookupService, MemberLookupService>();
         services.TryAddScoped<IPasswordlessSignInService, PasswordlessSignInService>();
         services.TryAddSingleton<IPasswordlessClock, SystemClock>();
+
+        services.AddHostedService<DistributedCacheStartupCheck>();
 
         return services;
     }

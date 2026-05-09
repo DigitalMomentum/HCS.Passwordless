@@ -38,8 +38,12 @@ public static class WebAuthnBuilderExtensions
             fido.ServerDomain = wa.RpId ?? "localhost";
             fido.ServerName = wa.RpName;
             fido.Origins = wa.Origins;
-            fido.TimestampDriftTolerance = 300_000;
+            fido.TimestampDriftTolerance = wa.TimestampDriftToleranceMs;
         });
+        // IFido2 is a singleton that captures WebAuthnOptions (Origins, RpId) at first resolution.
+        // Runtime config reloads are intentionally not picked up — origin pinning must not change
+        // without a restart, and accepting a stale binding is safer than accepting an attacker-
+        // supplied origin mid-flight. Document this in the configuration guide.
         services.TryAddSingleton<IFido2>(sp =>
         {
             var fido2Opts = sp.GetRequiredService<IOptions<Fido2Configuration>>().Value;

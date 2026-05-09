@@ -122,7 +122,7 @@ These apply to all factors.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `Enabled` | bool | `true` | Enable or disable magic link sign-in |
-| `TokenLifespan` | TimeSpan | `00:15:00` | How long a link remains valid after it's sent |
+| `TokenLifespan` | TimeSpan | `00:15:00` | How long a link remains valid after it's sent. Maximum: `01:00:00` (1 hour). |
 | `SingleUse` | bool | `true` | When `true`, each link can only be used once. Strongly recommended. |
 
 ---
@@ -156,6 +156,11 @@ These apply to all factors.
 | `AuthenticatorAttachment` | string? | `null` | `Platform` = built-in biometric only; `CrossPlatform` = USB/NFC keys only; `null` = accept any. |
 | `ChallengeTtl` | TimeSpan | `00:05:00` | How long a registration or sign-in challenge is valid before it expires |
 | `RequireAtLeastOneNonPasskeyFactor` | bool | `true` | Prevents deleting the last passkey when no other sign-in factor (magic link or OTP) is enabled |
+| `TimestampDriftToleranceMs` | int | `300000` | Allowed clock-skew window for WebAuthn timestamp validation in milliseconds. Allowed range: 30 000–600 000 ms (30 s to 10 min). |
+| `SignInOptionsPerIpPerMinute` | int | `10` | Maximum sign-in options requests per IP address per minute |
+| `SignInCompletePerIpPerMinute` | int | `5` | Maximum sign-in complete requests per IP address per minute |
+
+> **Restart required for WebAuthn changes:** The library resolves `RpId`, `Origins`, and other WebAuthn settings once at application startup and holds them for the lifetime of the process. This is intentional — origin pinning must not change mid-flight. If you update any value under `HCS:Authentication:WebAuthn`, restart the application for the change to take effect.
 
 ### Notes on `RpId` and `Origins`
 

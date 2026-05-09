@@ -124,4 +124,32 @@ public class WebAuthnOptionsValidatorTests
         result.Succeeded.Should().BeFalse();
         result.FailureMessage.Should().Contain("SignInCompletePerIpPerMinute");
     }
+
+    [Theory]
+    [InlineData(29_999)]
+    [InlineData(600_001)]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Validate_Fails_WhenTimestampDriftToleranceMsIsOutOfRange(int ms)
+    {
+        _env.EnvironmentName.Returns("Development");
+        var opts = EnabledWithKey();
+        opts.TimestampDriftToleranceMs = ms;
+        var result = CreateSut().Validate(null, opts);
+        result.Succeeded.Should().BeFalse();
+        result.FailureMessage.Should().Contain("TimestampDriftToleranceMs");
+    }
+
+    [Theory]
+    [InlineData(30_000)]
+    [InlineData(300_000)]
+    [InlineData(600_000)]
+    public void Validate_Succeeds_WhenTimestampDriftToleranceMsIsInRange(int ms)
+    {
+        _env.EnvironmentName.Returns("Development");
+        var opts = EnabledWithKey();
+        opts.TimestampDriftToleranceMs = ms;
+        var result = CreateSut().Validate(null, opts);
+        result.Succeeded.Should().BeTrue();
+    }
 }

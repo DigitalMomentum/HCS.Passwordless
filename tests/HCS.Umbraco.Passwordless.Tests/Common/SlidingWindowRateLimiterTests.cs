@@ -1,10 +1,10 @@
-﻿using HCS.Umbraco.Passwordless.RateLimiting;
+using HCS.Umbraco.Passwordless.RateLimiting;
 
 namespace HCS.Umbraco.Passwordless.Tests.Common;
 
-public class SlidingWindowRateLimiterTests
+public class FixedWindowRateLimiterTests
 {
-    private static SlidingWindowRateLimiter CreateLimiter()
+    private static FixedWindowRateLimiter CreateLimiter()
         => new(new MemoryCache(new MemoryCacheOptions()));
 
     [Fact]

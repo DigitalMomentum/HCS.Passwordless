@@ -2,11 +2,13 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace HCS.Umbraco.Passwordless.RateLimiting;
 
-internal sealed class SlidingWindowRateLimiter : IPasswordlessRateLimiter
+// Named FixedWindowRateLimiter because it divides time into fixed epoch-second buckets.
+// Allows up to 2× burst at window boundaries — documented accepted behaviour (L-1).
+internal sealed class FixedWindowRateLimiter : IPasswordlessRateLimiter
 {
     private readonly IMemoryCache _cache;
 
-    public SlidingWindowRateLimiter(IMemoryCache cache) => _cache = cache;
+    public FixedWindowRateLimiter(IMemoryCache cache) => _cache = cache;
 
     public Task<bool> TryAcquireAsync(string key, TimeSpan window, int limit, CancellationToken ct = default)
     {

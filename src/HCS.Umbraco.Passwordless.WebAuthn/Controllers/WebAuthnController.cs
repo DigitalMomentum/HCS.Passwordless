@@ -37,6 +37,7 @@ public partial class WebAuthnController : UmbracoApiController
     private readonly IOptionsMonitor<PasswordlessOptions> _baseOpts;
     private readonly IOptionsMonitor<WebAuthnOptions> _waOpts;
     private readonly ILogger<WebAuthnController> _logger;
+    private readonly IPasswordlessClock _clock;
 
 
     public WebAuthnController(
@@ -50,7 +51,8 @@ public partial class WebAuthnController : UmbracoApiController
         IEventAggregator events,
         IOptionsMonitor<PasswordlessOptions> baseOpts,
         IOptionsMonitor<WebAuthnOptions> waOpts,
-        ILogger<WebAuthnController> logger)
+        ILogger<WebAuthnController> logger,
+        IPasswordlessClock clock)
     {
         _memberManager = memberManager;
         _lookup = lookup;
@@ -63,7 +65,7 @@ public partial class WebAuthnController : UmbracoApiController
         _baseOpts = baseOpts;
         _waOpts = waOpts;
         _logger = logger;
-
+        _clock = clock;
     }
 
     [HttpPost("register/options")]
@@ -182,7 +184,7 @@ public partial class WebAuthnController : UmbracoApiController
             BackupEligible: result.IsBackupEligible,
             BackupState: result.IsBackedUp,
             Nickname: state.Nickname,
-            CreatedUtc: DateTime.UtcNow,
+            CreatedUtc: _clock.UtcNow.UtcDateTime,
             LastUsedUtc: null,
             AttestationFormat: result.AttestationFormat);
 
@@ -373,7 +375,7 @@ public partial class WebAuthnController : UmbracoApiController
         }
 
         var hasEverIncremented = storedCredential.HasEverIncrementedCounter || result.SignCount > 0;
-        await _store.UpdateAfterAssertionAsync(storedCredential.CredentialId, result.SignCount, DateTime.UtcNow, hasEverIncremented, ct);
+        await _store.UpdateAfterAssertionAsync(storedCredential.CredentialId, result.SignCount, _clock.UtcNow.UtcDateTime, hasEverIncremented, ct);
         await _signIn.SignInAndRotateAsync(member, isPersistent: true, authenticationMethod: "webauthn", ct: ct);
         LogSignInSuccess(member.Key);
 
