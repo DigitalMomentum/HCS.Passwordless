@@ -85,9 +85,13 @@ These apply to all factors.
 | `PerIpRequestsPerMinute` | int | `10` | Max token-request calls per IP address per minute |
 | `PerEmailRequestsPerHour` | int | `5` | Max token-request calls per email address per hour |
 | `VerifyPerIpPerMinute` | int | `20` | Max verify/complete calls per IP address per minute |
-| `FakeWorkDelay` | TimeSpan | `00:00:00.250` | Base delay added when the email address isn't registered, to prevent timing attacks |
+| `FakeWorkDelay` | TimeSpan | `00:00:00.250` | Base delay added when the email address isn't registered, to prevent timing attacks. **Must be tuned to your email delivery latency** — see note below. |
 
-> **Tip:** `FakeWorkDelay` is randomised with ±50% jitter. A value of `250ms` means actual delays range from `125ms` to `375ms`.
+> **FakeWorkDelay tuning:** The delay is randomised with ±50% jitter. A value of `250ms` produces actual delays between `125ms` and `375ms`.
+>
+> The purpose of this delay is to make the "member not found" path take the same wall-clock time as the "member found, email sent" path. If your transactional email provider is slow — common for cross-region SMTP or shared relay services — real email delivery can take 500ms or more, which is well outside the default delay range. An attacker making many requests can exploit this timing difference to determine whether a given email address is registered.
+>
+> **Recommendation:** Measure the 95th-percentile end-to-end delivery time of your transactional email provider and set `FakeWorkDelay` to at least that value. For many providers 1–2 seconds is appropriate. A higher value increases the response time for all unauthenticated requests, which is an acceptable trade-off for preventing email enumeration.
 
 ---
 
@@ -107,7 +111,9 @@ These apply to all factors.
 | `ProductName` | string | `Your Site` | Your site or product name. Appears in email copy. |
 | `LogoUrl` | string? | `null` | Optional logo image URL. Rendered in email templates if present. |
 | `AccentColor` | string | `#2d6cdf` | Hex colour used for buttons and links in email templates |
-| `FooterHtml` | string? | `null` | Optional HTML appended to the email footer |
+| `FooterHtml` | string? | `null` | Optional HTML appended to the email footer. **Must be trusted, hardcoded HTML only** — see security note below. |
+
+> **FooterHtml security note:** This value is rendered with `Html.Raw` — it is inserted into the email body as-is, with no HTML encoding. Only use hardcoded, trusted HTML strings here. Never source this value from user input, a database field, or a backoffice setting without first sanitising it with a library such as [HtmlSanitizer](https://github.com/mganss/HtmlSanitizer). If you are unsure, leave it `null` and use the default footer text.
 
 ---
 
@@ -212,3 +218,5 @@ To see the WebAuthn log output during debugging, add the controller namespace to
 ```
 
 This will show you exactly which step in the sign-in flow is failing, with a Warning-level message for every early return and an Information-level message for successful sign-ins.
+
+> **Security note:** Debug-level log messages include the member's **security stamp** — the value ASP.NET Core Identity uses to invalidate all active sessions for that member. Do not enable `Debug` logging for `HCS.Umbraco.Passwordless` in production, and ensure your log storage and shipping pipeline does not retain Debug output. If you use a centralised logging service (Seq, Elastic, Application Insights), confirm that the minimum level ingested is `Information` or higher in non-development environments.

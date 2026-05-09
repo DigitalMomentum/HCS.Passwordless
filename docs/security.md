@@ -22,7 +22,8 @@ Rate limits are implemented as a sliding window using the distributed cache (`ID
 | `PerIpRequestsPerMinute` | `10` | POST to `/request` endpoints (magic link, OTP) |
 | `PerEmailRequestsPerHour` | `5` | POST to `/request` endpoints (per email address) |
 | `VerifyPerIpPerMinute` | `20` | POST to `/verify` endpoint (OTP) |
-| WebAuthn completion | `5 per IP per minute` | POST to `/auth/webauthn/signin/complete` (hardcoded) |
+| WebAuthn sign-in options | `SignInOptionsPerIpPerMinute` (default `10`) | POST to `/auth/webauthn/signin/options` |
+| WebAuthn completion | `SignInCompletePerIpPerMinute` (default `5`) | POST to `/auth/webauthn/signin/complete` |
 
 Rate limiting keys for email-based limits use a **hash of the email address**, never the plaintext. This protects member email addresses even if the cache contents were ever exposed.
 
@@ -34,7 +35,9 @@ The library guards against this in two ways:
 
 ### FakeWork delays
 
-When an email address is submitted but no matching member is found, the server sleeps for approximately 250ms (with ±50% random jitter) before responding. This makes the response time indistinguishable from a genuine lookup.
+When an email address is submitted but no matching member is found, the server sleeps for `FakeWorkDelay` (default 250ms, ±50% jitter) before responding. This makes the response time indistinguishable from a genuine lookup.
+
+> **Tuning required:** The 250ms default is calibrated for fast local SMTP. If your transactional email provider delivers slowly, the real "email sent" path will take longer than the fake path, leaking timing information. See the [FakeWorkDelay note in configuration](configuration.md#rate-limits-hcsauthenticationratelimits) for tuning guidance.
 
 ```mermaid
 sequenceDiagram
@@ -137,11 +140,45 @@ If you are running multiple instances, see [Multi-Instance Deployments](multi-in
 
 The OTP code store (`IOtpCodeStore`) and WebAuthn challenge store (`IWebAuthnChallengeStore`) use `IDistributedCache`. Configure a shared Redis cache via `AddStackExchangeRedisCache` and they will coordinate across instances automatically.
 
+## Accepted risks and operator responsibilities
+
+The following risks are known, understood, and accepted by design. The library cannot resolve them on your behalf — they require action or judgement on your part as the operator.
+
+### FooterHtml is rendered as raw HTML (M-1)
+
+`BrandingOptions.FooterHtml` is rendered with `Html.Raw` in the default email layout. The library has no way to know what HTML is "safe" for your use case, and HTML sanitisation is a complex domain-specific problem.
+
+**What this means:** If you populate `FooterHtml` from user input, a database column, or a backoffice field without sanitising it first, an attacker who can write to that source can inject arbitrary HTML into every transactional email sent by your site. This is a stored-XSS path in email.
+
+**What to do:** Only set `FooterHtml` to a hardcoded string in `appsettings.json`. If you need the value to be editable at runtime, sanitise it before use — [HtmlSanitizer](https://github.com/mganss/HtmlSanitizer) is a well-maintained option. If in doubt, leave `FooterHtml` as `null` and rely on the default footer text.
+
+---
+
+### FakeWorkDelay default may not cover your SMTP latency (M-2)
+
+The default `FakeWorkDelay` of 250ms is calibrated for fast, co-located SMTP. It is a minimum starting point, not a safe universal value.
+
+**What this means:** If your email provider is slower than the fake delay (common with cross-region relays or shared transactional email services), an attacker who can make many requests will observe that unknown emails get a faster response than known ones, revealing which email addresses are registered.
+
+**What to do:** Measure the 95th-percentile delivery time of your transactional email provider and raise `FakeWorkDelay` to at least that value. For most cloud email providers 1–2 seconds is appropriate. This is an expected latency cost — every unauthenticated request to a `/request` endpoint will take at least that long.
+
+---
+
+### Debug logging exposes security stamps (M-4)
+
+When the log level for `HCS.Umbraco.Passwordless` is set to `Debug`, log messages include the **security stamp** of the signing-in member. ASP.NET Core Identity uses the security stamp to invalidate all existing sessions — anyone who knows a member's current stamp can craft a session that survives a forced sign-out.
+
+**What this means:** If Debug logs reach a centralised log store (Seq, Elastic, Application Insights, Datadog, etc.), security stamps will be queryable by anyone with read access to that store.
+
+**What to do:** Never set the log level to `Debug` in production. If you need Debug output temporarily, do so only in an isolated environment and ensure the log destination is not shared or persistent. Confirm your production logging configuration ingests at `Information` or higher for the `HCS.Umbraco.Passwordless` namespace.
+
+---
+
 ## Security summary
 
 | Threat | Mitigation |
 |--------|-----------|
-| User enumeration via timing | FakeWork delays on all "member not found" paths |
+| User enumeration via timing | FakeWork delays on all "member not found" paths — **tune `FakeWorkDelay` to your SMTP latency** |
 | Brute-force token guessing | Short-lived tokens + single-use enforcement + rate limiting |
 | Token replay | Single-use store marks tokens consumed on first use |
 | Phishing (magic link / OTP) | Tokens expire quickly; single-use; rate limiting per email |
@@ -151,3 +188,5 @@ The OTP code store (`IOtpCodeStore`) and WebAuthn challenge store (`IWebAuthnCha
 | Plaintext token exposure | SHA-256 hash stored, never plaintext |
 | Cloned passkeys | Signature counter regression detection |
 | DDoS on sign-in endpoint | Per-IP rate limiting on all sign-in paths |
+| XSS via email footer | **Operator responsibility** — only use trusted hardcoded HTML in `FooterHtml` |
+| Security stamp leakage via logs | **Operator responsibility** — do not enable Debug logging in production |
