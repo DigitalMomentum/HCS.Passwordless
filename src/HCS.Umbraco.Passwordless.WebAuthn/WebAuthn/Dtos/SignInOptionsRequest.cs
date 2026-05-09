@@ -1,3 +1,5 @@
-﻿namespace HCS.Umbraco.Passwordless.WebAuthn.Dtos;
+﻿using System.ComponentModel.DataAnnotations;
 
-public sealed record SignInOptionsRequest(string? Email);
+namespace HCS.Umbraco.Passwordless.WebAuthn.Dtos;
+
+public sealed record SignInOptionsRequest([MaxLength(254)] string? Email);
