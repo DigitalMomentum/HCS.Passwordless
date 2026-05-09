@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -30,10 +29,9 @@ public static class PasswordlessCoreServiceCollectionExtensions
         services.AddSingleton<IValidateOptions<PasswordlessOptions>, PasswordlessOptionsValidator>();
 
         services.AddMemoryCache();
-        services.TryAddSingleton<IDistributedCache, MemoryDistributedCache>();
 
         services.TryAddScoped<IRazorViewRenderer, RazorViewRenderer>();
-        services.TryAddScoped<ISingleUseTokenStore, DistributedCacheSingleUseTokenStore>();
+        services.TryAddSingleton<ISingleUseTokenStore, InMemorySingleUseTokenStore>();
         services.TryAddSingleton<IPasswordlessRateLimiter, SlidingWindowRateLimiter>();
         services.TryAddScoped<IMemberLookupService, MemberLookupService>();
         services.TryAddScoped<IPasswordlessSignInService, PasswordlessSignInService>();

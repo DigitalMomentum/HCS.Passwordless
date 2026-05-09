@@ -32,7 +32,7 @@ public static class OtpBuilderExtensions
 
         services.TryAddScoped<IOtpNotificationSender, EmailOtpNotificationSender>();
         services.TryAddScoped<IOtpCodeStore, DistributedCacheOtpCodeStore>();
-        services.TryAddScoped<IAttemptCounter, DistributedCacheAttemptCounter>();
+        services.TryAddSingleton<IAttemptCounter, InMemoryAttemptCounter>();
         services.TryAddScoped<OtpTokenProvider>();
 
         services.Configure<IdentityOptions>(o =>

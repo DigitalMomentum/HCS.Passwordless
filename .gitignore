@@ -54,3 +54,6 @@ desktop.ini
 
 # Claude local memory (project-scoped, not for repo)
 .claude/
+
+# Local working notes (never commit)
+*.local.md

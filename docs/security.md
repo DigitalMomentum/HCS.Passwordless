@@ -127,11 +127,15 @@ Every WebAuthn ceremony (registration or sign-in) produces a unique challenge st
 
 This prevents **replay attacks** where an attacker captures a valid ceremony and tries to replay it later.
 
-## Dependency on `IDistributedCache`
+## Single-instance vs multi-instance
 
-All token stores, challenge stores, rate limiters, and attempt counters rely on `IDistributedCache`. In development, Umbraco's default in-memory cache works fine. In production with multiple servers, you **must** configure a shared cache (Redis is the most common choice) so that all instances share the same rate limit counts and token state.
+The token replay store (`ISingleUseTokenStore`) and OTP attempt counter (`IAttemptCounter`) use in-process memory by default. This is correct and race-free for a single Umbraco instance. If you run multiple instances behind a load balancer, each instance has its own memory and they cannot coordinate — the same magic link token could be accepted twice, or the OTP lockout could fail to trigger.
 
-See the [Umbraco documentation](https://docs.umbraco.com) for how to configure a distributed cache for your hosting environment.
+If you are on a single instance (the most common Umbraco setup), no action is required.
+
+If you are running multiple instances, see [Multi-Instance Deployments](multi-instance.md) for Redis and SQL Server replacement implementations.
+
+The OTP code store (`IOtpCodeStore`) and WebAuthn challenge store (`IWebAuthnChallengeStore`) use `IDistributedCache`. Configure a shared Redis cache via `AddStackExchangeRedisCache` and they will coordinate across instances automatically.
 
 ## Security summary
 

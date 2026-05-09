@@ -28,6 +28,7 @@ You can install one, two, or all three add-ons in the same site. They coexist wi
 - **[API Reference](api-reference.md)** — full HTTP endpoint reference for all factors
 - **[Security](security.md)** — rate limiting, token hashing, timing attack protection, and more
 - **[Advanced](advanced.md)** — replacing built-in services and hooking into library events
+- **[Multi-Instance Deployments](multi-instance.md)** — Redis and SQL Server replacements for load-balanced setups
 
 ## At a glance
 
