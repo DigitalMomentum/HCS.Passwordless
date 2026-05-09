@@ -62,13 +62,14 @@ public class OtpController : UmbracoApiController
         if (!otpOpts.Enabled) return NotFound();
 
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        var emailHash = Sha256Helper.Hash((dto.Email ?? string.Empty).Trim().ToLowerInvariant());
+        var normalizedEmail = (dto.Email ?? string.Empty).Trim().ToLowerInvariant();
+        var emailHash = Sha256Helper.Hash(normalizedEmail);
 
         if (!await _limiter.TryAcquireAsync($"otp-req:ip:{ip}", TimeSpan.FromMinutes(1), baseOpts.RateLimits.PerIpRequestsPerMinute, ct)
             || !await _limiter.TryAcquireAsync($"otp-req:email:{emailHash}", TimeSpan.FromHours(1), baseOpts.RateLimits.PerEmailRequestsPerHour, ct))
             return StatusCode(429);
 
-        var member = await _lookup.FindApprovedAsync(dto.Email ?? string.Empty, ct);
+        var member = await _lookup.FindApprovedAsync(normalizedEmail, ct);
         if (member is not null)
         {
             var code = await _users.GenerateUserTokenAsync(member, TokenProviderNames.Otp, TokenProviderNames.PurposeOtpLogin);
@@ -100,10 +101,11 @@ public class OtpController : UmbracoApiController
             return StatusCode(429);
         }
 
-        var member = await _lookup.FindApprovedAsync(dto.Email ?? string.Empty, ct);
+        var normalizedEmail = (dto.Email ?? string.Empty).Trim().ToLowerInvariant();
+        var member = await _lookup.FindApprovedAsync(normalizedEmail, ct);
         if (member is null)
         {
-            logger.LogDebug("OTP verify: member not found or not approved for email={Email}", dto.Email);
+            logger.LogDebug("OTP verify: member not found or not approved for email={Email}", normalizedEmail);
             await FakeWork.DelayAsync(baseOpts.RateLimits.FakeWorkDelay, ct);
             return Unauthorized();
         }

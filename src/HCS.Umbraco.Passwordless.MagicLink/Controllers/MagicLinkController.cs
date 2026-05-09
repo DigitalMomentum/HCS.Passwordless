@@ -65,13 +65,14 @@ public partial class MagicLinkController : UmbracoApiController
 
         var options = _opts.CurrentValue;
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        var emailHash = Sha256Helper.Hash((dto.Email ?? string.Empty).Trim().ToLowerInvariant());
+        var normalizedEmail = (dto.Email ?? string.Empty).Trim().ToLowerInvariant();
+        var emailHash = Sha256Helper.Hash(normalizedEmail);
 
         if (!await _limiter.TryAcquireAsync($"ml-req:ip:{ip}", TimeSpan.FromMinutes(1), options.RateLimits.PerIpRequestsPerMinute, ct)
             || !await _limiter.TryAcquireAsync($"ml-req:email:{emailHash}", TimeSpan.FromHours(1), options.RateLimits.PerEmailRequestsPerHour, ct))
             return StatusCode(429);
 
-        var member = await _lookup.FindApprovedAsync(dto.Email ?? string.Empty, ct);
+        var member = await _lookup.FindApprovedAsync(normalizedEmail, ct);
         if (member is not null)
         {
             var token = await _users.GenerateUserTokenAsync(
@@ -109,6 +110,7 @@ public partial class MagicLinkController : UmbracoApiController
             return Redirect(loginPath);
         }
 
+        var normalizedEmail = email.Trim().ToLowerInvariant();
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         if (!await _limiter.TryAcquireAsync($"ml-verify:ip:{ip}", TimeSpan.FromMinutes(1), options.RateLimits.VerifyPerIpPerMinute, ct))
         {
@@ -116,7 +118,7 @@ public partial class MagicLinkController : UmbracoApiController
             return StatusCode(429);
         }
 
-        var member = await _lookup.FindApprovedAsync(email, ct);
+        var member = await _lookup.FindApprovedAsync(normalizedEmail, ct);
         if (member is null)
         {
             LogVerifyMemberNotFound(email);

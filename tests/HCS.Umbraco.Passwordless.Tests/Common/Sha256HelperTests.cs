@@ -34,4 +34,17 @@ public class Sha256HelperTests
         Sha256Helper.Hash(string.Empty)
             .Should().Be("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
     }
+
+    [Theory]
+    [InlineData("user@example.com", "USER@EXAMPLE.COM")]
+    [InlineData("user@example.com", "User@Example.Com")]
+    [InlineData("user@example.com", "  user@example.com  ")]
+    [InlineData("user@example.com", "  USER@EXAMPLE.COM  ")]
+    public void Hash_NormalisedEmailVariantsProduceSameKey(string a, string b)
+    {
+        // Rate-limit keys are derived from Trim().ToLowerInvariant() — case/whitespace
+        // variants of the same address must hash identically so the limit cannot be bypassed.
+        Sha256Helper.Hash(a.Trim().ToLowerInvariant())
+            .Should().Be(Sha256Helper.Hash(b.Trim().ToLowerInvariant()));
+    }
 }
