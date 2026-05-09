@@ -25,4 +25,10 @@ public sealed class WebAuthnOptions
     /// leave this at the default or the decoys can be pre-computed from the NuGet binary.
     /// </summary>
     public string? DecoyHmacKey { get; set; }
+
+    /// <summary>Maximum sign-in options requests per IP per minute (default 10).</summary>
+    public int SignInOptionsPerIpPerMinute { get; set; } = 10;
+
+    /// <summary>Maximum sign-in complete requests per IP per minute (default 5).</summary>
+    public int SignInCompletePerIpPerMinute { get; set; } = 5;
 }

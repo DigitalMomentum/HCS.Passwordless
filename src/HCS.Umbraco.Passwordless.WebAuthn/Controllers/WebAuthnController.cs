@@ -201,6 +201,13 @@ public partial class WebAuthnController : UmbracoApiController
         var waOpts = _waOpts.CurrentValue;
         if (!waOpts.Enabled) return NotFound();
 
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        if (!await _limiter.TryAcquireAsync($"webauthn-signin-options:ip:{ip}", TimeSpan.FromMinutes(1), waOpts.SignInOptionsPerIpPerMinute, ct))
+        {
+            LogSignInRateLimited(ip);
+            return StatusCode(429);
+        }
+
         List<PublicKeyCredentialDescriptor> allowList;
         Guid? memberKey = null;
         bool isDecoy;
@@ -260,7 +267,7 @@ public partial class WebAuthnController : UmbracoApiController
         if (!_waOpts.CurrentValue.Enabled) return NotFound();
 
         var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        if (!await _limiter.TryAcquireAsync($"webauthn-signin-complete:ip:{ip}", TimeSpan.FromMinutes(1), 5, ct))
+        if (!await _limiter.TryAcquireAsync($"webauthn-signin-complete:ip:{ip}", TimeSpan.FromMinutes(1), _waOpts.CurrentValue.SignInCompletePerIpPerMinute, ct))
         {
             LogSignInRateLimited(ip);
             return StatusCode(429);

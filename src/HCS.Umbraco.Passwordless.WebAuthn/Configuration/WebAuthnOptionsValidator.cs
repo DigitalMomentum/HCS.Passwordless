@@ -24,6 +24,12 @@ internal sealed class WebAuthnOptionsValidator : IValidateOptions<WebAuthnOption
         else if (Encoding.UTF8.GetByteCount(options.DecoyHmacKey) < 16)
             errors.Add("WebAuthn.DecoyHmacKey must be at least 16 bytes (UTF-8 encoded).");
 
+        if (options.SignInOptionsPerIpPerMinute <= 0)
+            errors.Add("WebAuthn.SignInOptionsPerIpPerMinute must be greater than zero.");
+
+        if (options.SignInCompletePerIpPerMinute <= 0)
+            errors.Add("WebAuthn.SignInCompletePerIpPerMinute must be greater than zero.");
+
         return errors.Count > 0
             ? ValidateOptionsResult.Fail(errors)
             : ValidateOptionsResult.Success;

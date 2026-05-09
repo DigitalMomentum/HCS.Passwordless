@@ -98,4 +98,30 @@ public class WebAuthnOptionsValidatorTests
         var result = CreateSut().Validate(null, opts);
         result.Succeeded.Should().BeTrue();
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Validate_Fails_WhenSignInOptionsPerIpPerMinuteIsNotPositive(int limit)
+    {
+        _env.EnvironmentName.Returns("Development");
+        var opts = EnabledWithKey();
+        opts.SignInOptionsPerIpPerMinute = limit;
+        var result = CreateSut().Validate(null, opts);
+        result.Succeeded.Should().BeFalse();
+        result.FailureMessage.Should().Contain("SignInOptionsPerIpPerMinute");
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    public void Validate_Fails_WhenSignInCompletePerIpPerMinuteIsNotPositive(int limit)
+    {
+        _env.EnvironmentName.Returns("Development");
+        var opts = EnabledWithKey();
+        opts.SignInCompletePerIpPerMinute = limit;
+        var result = CreateSut().Validate(null, opts);
+        result.Succeeded.Should().BeFalse();
+        result.FailureMessage.Should().Contain("SignInCompletePerIpPerMinute");
+    }
 }
