@@ -197,6 +197,37 @@ The OTP attempt counter is keyed on member ID. An attacker who knows (or guesses
 
 ---
 
+### Magic-link token visible in URL, browser history, and access logs (L-3)
+
+Magic-link tokens are delivered as a query-string parameter in the verification URL:
+
+```
+https://yoursite.com/auth/magic-link/verify?email=…&token=RAW_TOKEN&returnUrl=…
+```
+
+This means the raw token appears in:
+- **Server access logs** (Nginx, IIS, Kestrel's request log)
+- **Browser history** on the device that clicked the link
+- **Referer headers** if the page linked-to contains third-party resources
+
+**What this means:** If someone gains access to server access logs or the member's browser history before the link is used, they could attempt to use the token. However, the risk is substantially limited by single-use enforcement — the token is invalidated on first click and is useless after that.
+
+**What to do:** For most deployments the risk is acceptable — magic links are widely used in this form and the single-use guarantee is the primary control. If your threat model requires stronger protection:
+- Ensure server access logs are access-controlled and retained only as long as necessary.
+- Consider implementing a PKCE-style exchange where the URL contains a short opaque code that is exchanged for the actual token in a POST request — this keeps the token out of URLs entirely.
+
+---
+
+### FakeWork jitter is theoretically fingerprintable (L-2)
+
+The `FakeWork` delay is a uniform random value between 50% and 100% of `FakeWorkDelay`. Over many samples, an adversary with a statistical analysis tool could detect the uniform distribution shape and confirm that a given path uses FakeWork rather than performing real work.
+
+**What this means:** In practice, network round-trip jitter (typically 10–50ms of variance) dominates the measured distribution and masks the uniform jitter entirely. This is a theoretical concern, not a practical one for any realistic deployment.
+
+**What to do:** No action required. If you operate in an environment where sub-millisecond network timing is available to an adversary (unlikely for a web application), consider using a Gaussian jitter distribution by customising the `IPasswordlessRateLimiter` or wrapping the endpoints.
+
+---
+
 ### Debug logging exposes security stamps (M-4)
 
 When the log level for `HCS.Umbraco.Passwordless` is set to `Debug`, log messages include the **security stamp** of the signing-in member. ASP.NET Core Identity uses the security stamp to invalidate all existing sessions — anyone who knows a member's current stamp can craft a session that survives a forced sign-out.

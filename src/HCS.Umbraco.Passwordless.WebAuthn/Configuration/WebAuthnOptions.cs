@@ -16,6 +16,10 @@ public sealed class WebAuthnOptions
     public ResidentKeyRequirement ResidentKey { get; set; } = ResidentKeyRequirement.Required;
     public AuthenticatorAttachment? AuthenticatorAttachment { get; set; }
     public TimeSpan ChallengeTtl { get; set; } = TimeSpan.FromMinutes(5);
+    /// <summary>
+    /// Reserved for future FIDO Alliance Metadata Service (MDS) integration.
+    /// This property is not currently implemented — setting it to <c>true</c> has no effect.
+    /// </summary>
     public bool MetadataService { get; set; } = false;
     public bool RequireAtLeastOneNonPasskeyFactor { get; set; } = true;
 

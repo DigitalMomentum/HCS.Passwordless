@@ -33,6 +33,22 @@ public interface ISingleUseTokenStore
 
 The key constraint is **atomicity** — checking and marking in a single indivisible operation. Reading, checking, and then writing as three separate steps is not safe under concurrent load.
 
+### `IWebAuthnChallengeStore` (WebAuthn ceremony replay protection)
+
+```csharp
+public interface IWebAuthnChallengeStore
+{
+    Task PutAsync<T>(string key, T payload, TimeSpan ttl, CancellationToken ct = default);
+
+    // Must atomically retrieve and remove — only one caller can succeed per key.
+    Task<T?> TakeAsync<T>(string key, CancellationToken ct = default);
+}
+```
+
+The default implementation stores challenges in `IDistributedCache`. A shared Redis `IDistributedCache` resolves the multi-instance concern (challenges are visible across nodes), but the `GetAsync` + `RemoveAsync` sequence still has a narrow TOCTOU window: two simultaneous `TakeAsync` calls with the same ceremony ID can both retrieve the challenge before either deletes it.
+
+For most deployments the window is narrow enough and the FIDO2 library's signature uniqueness check provides a second layer of defence. If you want to eliminate the window entirely, replace the store with the Redis `GETDEL` implementation below.
+
 ### `IAttemptCounter` (OTP brute-force lockout)
 
 ```csharp
@@ -165,6 +181,43 @@ public sealed class RedisAttemptCounter : IAttemptCounter
 }
 ```
 
+### Implement `IWebAuthnChallengeStore` with Redis `GETDEL` (optional hardening)
+
+> **This step is optional.** If you configure a shared `IDistributedCache` (see below), the default challenge store already coordinates across nodes. This implementation closes the residual TOCTOU window for deployments that require it.
+
+Redis 6.2+ provides `GETDEL`, which atomically retrieves a key and deletes it in a single round-trip — there is no window between the get and the delete.
+
+```csharp
+using System.Text.Json;
+using HCS.Umbraco.Passwordless.WebAuthn.Services;
+using StackExchange.Redis;
+
+public sealed class RedisWebAuthnChallengeStore : IWebAuthnChallengeStore
+{
+    private readonly IConnectionMultiplexer _redis;
+
+    public RedisWebAuthnChallengeStore(IConnectionMultiplexer redis) => _redis = redis;
+
+    public async Task PutAsync<T>(string key, T payload, TimeSpan ttl, CancellationToken ct = default)
+    {
+        var db = _redis.GetDatabase();
+        var json = JsonSerializer.SerializeToUtf8Bytes(payload);
+        await db.StringSetAsync($"pwl:challenge:{key}", json, ttl);
+    }
+
+    public async Task<T?> TakeAsync<T>(string key, CancellationToken ct = default)
+    {
+        var db = _redis.GetDatabase();
+        // GETDEL atomically retrieves and removes the key — no TOCTOU window.
+        var result = await db.ExecuteAsync("GETDEL", $"pwl:challenge:{key}");
+        if (result.IsNull) return default;
+        return JsonSerializer.Deserialize<T>((byte[])result!);
+    }
+}
+```
+
+> **Redis version requirement:** `GETDEL` was added in Redis 6.2. If you are on an older Redis, replace the `ExecuteAsync("GETDEL", ...)` call with `StringGetDeleteAsync(key)` (available in StackExchange.Redis 2.6+), which uses a Lua script as a fallback on older servers.
+
 ### Register your implementations
 
 ```csharp
@@ -174,6 +227,9 @@ builder.CreateUmbracoBuilder()
     )
     .AddPasswordlessOtp(otp => otp
         .UseAttemptCounter<RedisAttemptCounter>()
+    )
+    .AddPasswordlessWebAuthn(wa => wa
+        .UseChallengeStore<RedisWebAuthnChallengeStore>()  // optional — only if closing TOCTOU window
     )
     .Build();
 ```
@@ -356,10 +412,10 @@ builder.CreateUmbracoBuilder()
 | Store | Interface | Default | Multi-instance risk |
 |-------|-----------|---------|---------------------|
 | OTP code store | `IOtpCodeStore` | Distributed cache (`MemoryDistributedCache`) | A code issued on one instance may not be verifiable on another |
-| WebAuthn challenge store | `IWebAuthnChallengeStore` | Distributed cache | A ceremony started on one instance cannot be completed on another |
+| WebAuthn challenge store | `IWebAuthnChallengeStore` | Distributed cache | A ceremony started on one instance cannot be completed on another; residual TOCTOU window even with shared cache |
 | Rate limiter | `IPasswordlessRateLimiter` | In-process memory | Each instance has its own window — effective limit is `instances × configured limit` |
 
-The distributed cache implementations of `IOtpCodeStore` and `IWebAuthnChallengeStore` will coordinate correctly once you configure a real shared `IDistributedCache` (e.g. `AddStackExchangeRedisCache`). The rate limiter has a dedicated interface if you want to replace it entirely.
+The distributed cache implementation of `IOtpCodeStore` will coordinate correctly once you configure a real shared `IDistributedCache`. `IWebAuthnChallengeStore` likewise coordinates across nodes with a shared `IDistributedCache`, but retains a narrow TOCTOU window — see the [Redis `GETDEL` implementation above](#implement-iwebauthnchallengstore-with-redis-getdel-optional-hardening) if you need to eliminate it. The rate limiter has a dedicated interface if you want to replace it entirely.
 
 ### Shared distributed cache for `IOtpCodeStore` and `IWebAuthnChallengeStore`
 
