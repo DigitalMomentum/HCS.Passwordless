@@ -116,7 +116,7 @@ Default templates are Razor partials shipped in the RCL. Override any template b
 ## Project Structure
 
 ```
-Passwordless.sln
+Passwordless.slnx
 ├── src/
 │   ├── HCS.Passwordless          # Core / magic links
 │   ├── HCS.Passwordless.Otp      # OTP add-on
