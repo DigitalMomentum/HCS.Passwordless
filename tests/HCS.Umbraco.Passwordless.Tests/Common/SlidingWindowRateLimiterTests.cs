@@ -4,8 +4,7 @@ namespace HCS.Umbraco.Passwordless.Tests.Common;
 
 public class FixedWindowRateLimiterTests
 {
-    private static FixedWindowRateLimiter CreateLimiter()
-        => new(new MemoryCache(new MemoryCacheOptions()));
+    private static FixedWindowRateLimiter CreateLimiter() => new();
 
     [Fact]
     public async Task TryAcquireAsync_ReturnsTrueForFirstRequest()
