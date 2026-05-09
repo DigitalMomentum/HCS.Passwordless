@@ -368,10 +368,10 @@ public partial class WebAuthnController : UmbracoApiController
         return Ok(new { ok = true });
     }
 
-    private static List<PublicKeyCredentialDescriptor> BuildDecoyAllowList(string email)
+    private List<PublicKeyCredentialDescriptor> BuildDecoyAllowList(string email)
     {
         var seed = HMACSHA256.HashData(
-            Encoding.UTF8.GetBytes("decoy-secret"),
+            Encoding.UTF8.GetBytes(_waOpts.CurrentValue.DecoyHmacKey!),
             Encoding.UTF8.GetBytes(email.ToLowerInvariant()));
         return
         [

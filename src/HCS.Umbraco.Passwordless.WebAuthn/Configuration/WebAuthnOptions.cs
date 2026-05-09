@@ -18,4 +18,11 @@ public sealed class WebAuthnOptions
     public TimeSpan ChallengeTtl { get; set; } = TimeSpan.FromMinutes(5);
     public bool MetadataService { get; set; } = false;
     public bool RequireAtLeastOneNonPasskeyFactor { get; set; } = true;
+
+    /// <summary>
+    /// Secret key (≥ 16 bytes when UTF-8 encoded) used to generate decoy credential IDs for
+    /// email-enumeration protection. Must be set to a random, operator-specific value — never
+    /// leave this at the default or the decoys can be pre-computed from the NuGet binary.
+    /// </summary>
+    public string? DecoyHmacKey { get; set; }
 }
