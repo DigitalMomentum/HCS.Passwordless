@@ -21,4 +21,5 @@ internal sealed class MemberCredentialDto
     public DateTime CreatedUtc { get; set; }
     public DateTime? LastUsedUtc { get; set; }
     public string? AttestationFormat { get; set; }
+    public bool HasEverIncrementedCounter { get; set; }
 }

@@ -15,4 +15,5 @@ public sealed record StoredCredential(
     string? Nickname,
     DateTime CreatedUtc,
     DateTime? LastUsedUtc,
-    string? AttestationFormat);
+    string? AttestationFormat,
+    bool HasEverIncrementedCounter = false);

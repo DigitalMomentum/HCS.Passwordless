@@ -39,12 +39,12 @@ internal sealed class UmbracoDbMemberCredentialStore : IMemberCredentialStore
         return ToRecord(dto);
     }
 
-    public async Task UpdateAfterAssertionAsync(byte[] credentialId, uint newCounter, DateTime lastUsedUtc, CancellationToken ct = default)
+    public async Task UpdateAfterAssertionAsync(byte[] credentialId, uint newCounter, DateTime lastUsedUtc, bool hasEverIncremented, CancellationToken ct = default)
     {
         using var scope = _scopeProvider.CreateScope();
         await scope.Database.ExecuteAsync(
-            "UPDATE Passwordless_MemberCredentials SET SignatureCounter = @0, LastUsedUtc = @1 WHERE CredentialId = @2",
-            (long)newCounter, lastUsedUtc, credentialId);
+            "UPDATE Passwordless_MemberCredentials SET SignatureCounter = @0, LastUsedUtc = @1, HasEverIncrementedCounter = @2 WHERE CredentialId = @3",
+            (long)newCounter, lastUsedUtc, hasEverIncremented, credentialId);
         scope.Complete();
     }
 
@@ -89,7 +89,8 @@ internal sealed class UmbracoDbMemberCredentialStore : IMemberCredentialStore
         d.Id, d.MemberKey, d.CredentialId, d.PublicKey, d.UserHandle,
         (uint)d.SignatureCounter, d.CredType, d.AaGuid, d.Transports,
         d.BackupEligible, d.BackupState, d.Nickname,
-        d.CreatedUtc, d.LastUsedUtc, d.AttestationFormat);
+        d.CreatedUtc, d.LastUsedUtc, d.AttestationFormat,
+        d.HasEverIncrementedCounter);
 
     private static MemberCredentialDto ToDto(StoredCredential c) => new()
     {
@@ -107,6 +108,7 @@ internal sealed class UmbracoDbMemberCredentialStore : IMemberCredentialStore
         Nickname = c.Nickname,
         CreatedUtc = c.CreatedUtc,
         LastUsedUtc = c.LastUsedUtc,
-        AttestationFormat = c.AttestationFormat
+        AttestationFormat = c.AttestationFormat,
+        HasEverIncrementedCounter = c.HasEverIncrementedCounter
     };
 }

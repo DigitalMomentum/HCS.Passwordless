@@ -355,7 +355,11 @@ public partial class WebAuthnController : UmbracoApiController
             return BadRequest(new { error = "assertion_failed", detail = $"Reference: {refGuid}" });
         }
 
-        if (result.SignCount != 0 && result.SignCount <= storedCredential.SignatureCounter)
+        var counterRegressed =
+            (result.SignCount != 0 && result.SignCount <= storedCredential.SignatureCounter) ||
+            (result.SignCount == 0 && storedCredential.HasEverIncrementedCounter);
+
+        if (counterRegressed)
         {
             LogSignInCounterRegression(storedCredential.SignatureCounter, result.SignCount, storedCredential.MemberKey);
             await _events.PublishAsync(new PasskeyCounterRegressionNotification
@@ -368,7 +372,8 @@ public partial class WebAuthnController : UmbracoApiController
             return Unauthorized();
         }
 
-        await _store.UpdateAfterAssertionAsync(storedCredential.CredentialId, result.SignCount, DateTime.UtcNow, ct);
+        var hasEverIncremented = storedCredential.HasEverIncrementedCounter || result.SignCount > 0;
+        await _store.UpdateAfterAssertionAsync(storedCredential.CredentialId, result.SignCount, DateTime.UtcNow, hasEverIncremented, ct);
         await _signIn.SignInAndRotateAsync(member, isPersistent: true, authenticationMethod: "webauthn", ct: ct);
         LogSignInSuccess(member.Key);
 
