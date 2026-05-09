@@ -223,7 +223,8 @@ public partial class WebAuthnController : UmbracoApiController
         }
         else
         {
-            var member = await _lookup.FindApprovedAsync(dto.Email, ct);
+            var normalizedEmail = dto.Email.Trim().ToLowerInvariant();
+            var member = await _lookup.FindApprovedAsync(normalizedEmail, ct);
             if (member is not null)
             {
                 memberFound = true;
@@ -237,13 +238,13 @@ public partial class WebAuthnController : UmbracoApiController
                 }
                 else
                 {
-                    allowList = BuildDecoyAllowList(dto.Email);
+                    allowList = BuildDecoyAllowList(normalizedEmail);
                     isDecoy = true;
                 }
             }
             else
             {
-                allowList = BuildDecoyAllowList(dto.Email);
+                allowList = BuildDecoyAllowList(normalizedEmail);
                 isDecoy = true;
             }
         }
