@@ -1,0 +1,65 @@
+@using HCS.Passwordless.MagicLink.Configuration
+@* Shared branded email chrome. Override by placing this file at the same path in your host /Views folder. *@
+@{
+    var branding = ViewBag.Branding as BrandingOptions ?? new BrandingOptions();
+}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewBag.Subject ?? branding.ProductName)</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f5f5f5;font-family:Arial,Helvetica,sans-serif;">
+    @* Preheader text — shown in inbox preview, hidden in email body *@
+    <span style="display:none;font-size:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">@RenderSection("Preheader", required: false)</span>
+
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#f5f5f5;">
+        <tr>
+            <td align="center" style="padding:32px 16px;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="600" style="max-width:600px;background:#ffffff;border-radius:8px;overflow:hidden;">
+
+                    @* Header band *@
+                    <tr>
+                        <td style="background-color:@branding.AccentColor;padding:24px 32px;">
+                            @if (!string.IsNullOrEmpty(branding.LogoUrl))
+                            {
+                                <img src="@branding.LogoUrl" alt="@branding.ProductName" height="36" style="display:block;border:0;" />
+                            }
+                            else
+                            {
+                                <span style="color:#ffffff;font-size:20px;font-weight:bold;font-family:Arial,Helvetica,sans-serif;">@branding.ProductName</span>
+                            }
+                        </td>
+                    </tr>
+
+                    @* Body *@
+                    <tr>
+                        <td style="padding:32px;">
+                            @RenderBody()
+                        </td>
+                    </tr>
+
+                    @* Footer *@
+                    <tr>
+                        <td style="background-color:#f9f9f9;padding:16px 32px;border-top:1px solid #eeeeee;">
+                            @if (!string.IsNullOrEmpty(branding.FooterHtml))
+                            {
+                                @Html.Raw(branding.FooterHtml)
+                            }
+                            else
+                            {
+                                <p style="margin:0;font-size:12px;color:#888888;font-family:Arial,Helvetica,sans-serif;">
+                                    You received this email because a sign-in was requested for your @branding.ProductName account.
+                                    If you did not request this, you can safely ignore this email.
+                                </p>
+                            }
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

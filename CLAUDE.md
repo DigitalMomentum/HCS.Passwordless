@@ -1,4 +1,4 @@
-﻿# HCS Passwordless — Solution CLAUDE.md
+# HCS Passwordless — Solution CLAUDE.md
 
 ## What this is
 
@@ -7,12 +7,12 @@ A HCS-branded NuGet library suite for passwordless Umbraco 13 member authenticat
 ## Solution layout
 
 ```
-src/HCS.Umbraco.Passwordless.Core     # shared infrastructure — token store, rate limiter, sign-in
-src/HCS.Umbraco.Passwordless.MagicLink # magic link auth (depends on Core)
-src/HCS.Umbraco.Passwordless.Otp      # add-on — email OTP (depends on Core)
-src/HCS.Umbraco.Passwordless.WebAuthn # add-on — FIDO2 passkeys (depends on Core)
-tests/HCS.Umbraco.Passwordless.Tests  # xUnit suite (~121 tests)
-demo/HCS.Umbraco.Passwordless.Demo    # runnable Umbraco 13 site
+src/HCS.Passwordless.Core     # shared infrastructure — token store, rate limiter, sign-in
+src/HCS.Passwordless.MagicLink # magic link auth (depends on Core)
+src/HCS.Passwordless.Otp      # add-on — email OTP (depends on Core)
+src/HCS.Passwordless.WebAuthn # add-on — FIDO2 passkeys (depends on Core)
+tests/HCS.Passwordless.Tests  # xUnit suite (~121 tests)
+demo/HCS.Passwordless.Demo    # runnable Umbraco 13 site
 ```
 
 ## Build & test
@@ -37,7 +37,7 @@ dotnet test --filter "Category=Otp"  # subset
 
 ## Dependency rules
 
-- `HCS.Umbraco.Passwordless.Core` has **no dependency** on any add-on package.
+- `HCS.Passwordless.Core` has **no dependency** on any add-on package.
 - All three add-on packages (`MagicLink`, `Otp`, `WebAuthn`) depend on Core. They must **not** depend on each other.
 - The demo may reference all four.
 

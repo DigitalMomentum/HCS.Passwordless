@@ -1,0 +1,36 @@
+@model HCS.Passwordless.MagicLink.Notifications.Models.MagicLinkEmailModel
+@{
+    Layout = "~/Views/Emails/Passwordless/_Layout.cshtml";
+    ViewBag.Branding = Model.Branding;
+    ViewBag.Subject = "Your sign-in link";
+    var expiryMinutes = (int)Model.Expiry.TotalMinutes;
+}
+@section Preheader { Sign in to @Model.Branding.ProductName — your secure link is waiting. }
+
+<p style="margin:0 0 16px;font-size:16px;color:#333333;line-height:1.5;">Hi @Model.MemberName,</p>
+<p style="margin:0 0 24px;font-size:15px;color:#555555;line-height:1.5;">
+    Click the button below to sign in to @Model.Branding.ProductName. This link is valid for @expiryMinutes minutes and can only be used once.
+</p>
+
+@* CTA button *@
+<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+    <tr>
+        <td style="border-radius:4px;background-color:@Model.Branding.AccentColor;">
+            <a href="@Model.Link"
+               style="display:inline-block;padding:14px 28px;font-size:16px;font-weight:bold;color:#ffffff;text-decoration:none;font-family:Arial,Helvetica,sans-serif;border-radius:4px;">
+                Sign in to @Model.Branding.ProductName
+            </a>
+        </td>
+    </tr>
+</table>
+
+<p style="margin:0 0 8px;font-size:13px;color:#888888;line-height:1.4;">
+    If the button above does not work, copy and paste this URL into your browser:
+</p>
+<p style="margin:0 0 24px;font-size:13px;color:@Model.Branding.AccentColor;word-break:break-all;">
+    <a href="@Model.Link" style="color:@Model.Branding.AccentColor;text-decoration:underline;">@Model.Link</a>
+</p>
+
+<p style="margin:0;font-size:13px;color:#aaaaaa;line-height:1.4;border-top:1px solid #eeeeee;padding-top:16px;">
+    This link expires in @expiryMinutes minutes. For security, never share this link with anyone.
+</p>

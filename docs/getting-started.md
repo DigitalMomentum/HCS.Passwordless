@@ -14,16 +14,16 @@ Install only the packages for the factors you want. You can always add more late
 
 ```bash
 # Magic link sign-in
-dotnet add package HCS.Umbraco.Passwordless.MagicLink
+dotnet add package HCS.Passwordless.MagicLink
 
 # One-time password sign-in
-dotnet add package HCS.Umbraco.Passwordless.Otp
+dotnet add package HCS.Passwordless.Otp
 
 # Passkeys (WebAuthn / FIDO2)
-dotnet add package HCS.Umbraco.Passwordless.WebAuthn
+dotnet add package HCS.Passwordless.WebAuthn
 ```
 
-The `HCS.Umbraco.Passwordless.Core` package is a shared dependency — it installs automatically.
+The `HCS.Passwordless.Core` package is a shared dependency — it installs automatically.
 
 ## Step 2 — Register the services
 

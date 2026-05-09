@@ -148,7 +148,7 @@ When the application starts, the library checks whether `IDistributedCache` reso
 HCS Passwordless: IDistributedCache is using MemoryDistributedCache (in-process, node-local). ...
 ```
 
-This warning is harmless on a genuine single-instance deployment and can be suppressed by raising the log level for `HCS.Umbraco.Passwordless` above `Warning`. On a multi-instance deployment, act on the warning before going live — replace `IDistributedCache` with a shared implementation as described in [Multi-Instance Deployments](multi-instance.md).
+This warning is harmless on a genuine single-instance deployment and can be suppressed by raising the log level for `HCS.Passwordless` above `Warning`. On a multi-instance deployment, act on the warning before going live — replace `IDistributedCache` with a shared implementation as described in [Multi-Instance Deployments](multi-instance.md).
 
 ## Accepted risks and operator responsibilities
 
@@ -230,11 +230,11 @@ The `FakeWork` delay is a uniform random value between 50% and 100% of `FakeWork
 
 ### Debug logging exposes security stamps (M-4)
 
-When the log level for `HCS.Umbraco.Passwordless` is set to `Debug`, log messages include the **security stamp** of the signing-in member. ASP.NET Core Identity uses the security stamp to invalidate all existing sessions — anyone who knows a member's current stamp can craft a session that survives a forced sign-out.
+When the log level for `HCS.Passwordless` is set to `Debug`, log messages include the **security stamp** of the signing-in member. ASP.NET Core Identity uses the security stamp to invalidate all existing sessions — anyone who knows a member's current stamp can craft a session that survives a forced sign-out.
 
 **What this means:** If Debug logs reach a centralised log store (Seq, Elastic, Application Insights, Datadog, etc.), security stamps will be queryable by anyone with read access to that store.
 
-**What to do:** Never set the log level to `Debug` in production. If you need Debug output temporarily, do so only in an isolated environment and ensure the log destination is not shared or persistent. Confirm your production logging configuration ingests at `Information` or higher for the `HCS.Umbraco.Passwordless` namespace.
+**What to do:** Never set the log level to `Debug` in production. If you need Debug output temporarily, do so only in an isolated environment and ensure the log destination is not shared or persistent. Confirm your production logging configuration ingests at `Information` or higher for the `HCS.Passwordless` namespace.
 
 ---
 

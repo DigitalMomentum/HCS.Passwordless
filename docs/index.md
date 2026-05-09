@@ -10,10 +10,10 @@ The library ships as four NuGet packages. You pick the ones you need:
 
 | Package | What it adds |
 |---------|-------------|
-| `HCS.Umbraco.Passwordless.Core` | Shared infrastructure — installed automatically when you install any add-on |
-| `HCS.Umbraco.Passwordless.MagicLink` | **Magic link** sign-in via email |
-| `HCS.Umbraco.Passwordless.Otp` | **One-time password (OTP)** sign-in via email code |
-| `HCS.Umbraco.Passwordless.WebAuthn` | **Passkeys** (FIDO2/WebAuthn) — fingerprint, Face ID, USB security keys |
+| `HCS.Passwordless.Core` | Shared infrastructure — installed automatically when you install any add-on |
+| `HCS.Passwordless.MagicLink` | **Magic link** sign-in via email |
+| `HCS.Passwordless.Otp` | **One-time password (OTP)** sign-in via email code |
+| `HCS.Passwordless.WebAuthn` | **Passkeys** (FIDO2/WebAuthn) — fingerprint, Face ID, USB security keys |
 
 You can install one, two, or all three add-ons in the same site. They coexist without conflict.
 

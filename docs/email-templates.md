@@ -69,7 +69,7 @@ The `Branding` property on both models is populated from your `HCS:Authenticatio
 Here's a simple custom magic link template you can drop straight in. Adjust the HTML to match your brand.
 
 ```razor
-@model HCS.Umbraco.Passwordless.MagicLink.Notifications.Models.MagicLinkEmailModel
+@model HCS.Passwordless.MagicLink.Notifications.Models.MagicLinkEmailModel
 @{
     Layout = null;
     var expiryMinutes = (int)Model.Expiry.TotalMinutes;
@@ -123,7 +123,7 @@ Here's a simple custom magic link template you can drop straight in. Adjust the 
 ## Example: OTP template override
 
 ```razor
-@model HCS.Umbraco.Passwordless.Otp.Notifications.Models.OtpEmailModel
+@model HCS.Passwordless.Otp.Notifications.Models.OtpEmailModel
 @{
     Layout = null;
     var expiryMinutes = (int)Model.Expiry.TotalMinutes;

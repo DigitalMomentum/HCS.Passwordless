@@ -1,4 +1,4 @@
-﻿# HCS Passwordless for Umbraco
+# HCS Passwordless for Umbraco
 
 Passwordless member authentication for **Umbraco 13**, distributed as NuGet packages. Three pluggable authentication methods — magic links, one-time passwords (OTP), and WebAuthn/FIDO2 passkeys — can be used individually or together.
 
@@ -6,9 +6,9 @@ Passwordless member authentication for **Umbraco 13**, distributed as NuGet pack
 
 | Package | Description |
 |---------|-------------|
-| `HCS.Umbraco.Passwordless` | Core library — magic link authentication |
-| `HCS.Umbraco.Passwordless.Otp` | Add-on — email OTP codes |
-| `HCS.Umbraco.Passwordless.WebAuthn` | Add-on — FIDO2/passkey authentication |
+| `HCS.Passwordless` | Core library — magic link authentication |
+| `HCS.Passwordless.Otp` | Add-on — email OTP codes |
+| `HCS.Passwordless.WebAuthn` | Add-on — FIDO2/passkey authentication |
 
 ## Requirements
 
@@ -21,10 +21,10 @@ Passwordless member authentication for **Umbraco 13**, distributed as NuGet pack
 ### 1. Install
 
 ```bash
-dotnet add package HCS.Umbraco.Passwordless
+dotnet add package HCS.Passwordless
 # optional add-ons:
-dotnet add package HCS.Umbraco.Passwordless.Otp
-dotnet add package HCS.Umbraco.Passwordless.WebAuthn
+dotnet add package HCS.Passwordless.Otp
+dotnet add package HCS.Passwordless.WebAuthn
 ```
 
 ### 2. Register services (`Program.cs`)
@@ -118,13 +118,13 @@ Default templates are Razor partials shipped in the RCL. Override any template b
 ```
 Passwordless.sln
 ├── src/
-│   ├── HCS.Umbraco.Passwordless          # Core / magic links
-│   ├── HCS.Umbraco.Passwordless.Otp      # OTP add-on
-│   └── HCS.Umbraco.Passwordless.WebAuthn # WebAuthn add-on
+│   ├── HCS.Passwordless          # Core / magic links
+│   ├── HCS.Passwordless.Otp      # OTP add-on
+│   └── HCS.Passwordless.WebAuthn # WebAuthn add-on
 ├── tests/
-│   └── HCS.Umbraco.Passwordless.Tests    # xUnit test suite
+│   └── HCS.Passwordless.Tests    # xUnit test suite
 └── demo/
-    └── HCS.Umbraco.Passwordless.Demo     # Full demo Umbraco site
+    └── HCS.Passwordless.Demo     # Full demo Umbraco site
 ```
 
 ## Building
@@ -137,7 +137,7 @@ dotnet test
 ## Running the Demo
 
 ```bash
-cd demo/HCS.Umbraco.Passwordless.Demo
+cd demo/HCS.Passwordless.Demo
 dotnet run
 ```
 

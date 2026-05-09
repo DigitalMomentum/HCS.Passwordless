@@ -216,7 +216,7 @@ To see the WebAuthn log output during debugging, add the controller namespace to
 {
   "Logging": {
     "LogLevel": {
-      "HCS.Umbraco.Passwordless": "Debug"
+      "HCS.Passwordless": "Debug"
     }
   }
 }
@@ -224,4 +224,4 @@ To see the WebAuthn log output during debugging, add the controller namespace to
 
 This will show you exactly which step in the sign-in flow is failing, with a Warning-level message for every early return and an Information-level message for successful sign-ins.
 
-> **Security note:** Debug-level log messages include the member's **security stamp** — the value ASP.NET Core Identity uses to invalidate all active sessions for that member. Do not enable `Debug` logging for `HCS.Umbraco.Passwordless` in production, and ensure your log storage and shipping pipeline does not retain Debug output. If you use a centralised logging service (Seq, Elastic, Application Insights), confirm that the minimum level ingested is `Information` or higher in non-development environments.
+> **Security note:** Debug-level log messages include the member's **security stamp** — the value ASP.NET Core Identity uses to invalidate all active sessions for that member. Do not enable `Debug` logging for `HCS.Passwordless` in production, and ensure your log storage and shipping pipeline does not retain Debug output. If you use a centralised logging service (Seq, Elastic, Application Insights), confirm that the minimum level ingested is `Information` or higher in non-development environments.
