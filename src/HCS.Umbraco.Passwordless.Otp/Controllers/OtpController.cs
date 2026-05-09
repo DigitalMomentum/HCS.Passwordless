@@ -122,7 +122,11 @@ public class OtpController : UmbracoApiController
         var valid = await _users.VerifyUserTokenAsync(member, TokenProviderNames.Otp, TokenProviderNames.PurposeOtpLogin, dto.Code ?? string.Empty);
         logger.LogDebug("OTP verify: VerifyUserTokenAsync result={Valid} provider={Provider}", valid, TokenProviderNames.Otp);
 
-        if (!valid) return Unauthorized();
+        if (!valid)
+        {
+            await FakeWork.DelayAsync(baseOpts.RateLimits.FakeWorkDelay, ct);
+            return Unauthorized();
+        }
 
         await _attempts.ResetAsync(member.Id, TokenProviderNames.PurposeOtpLogin, ct);
         var safe = ReturnUrlValidator.Sanitize(dto.ReturnUrl, baseOpts.PostLoginRedirectPath);
