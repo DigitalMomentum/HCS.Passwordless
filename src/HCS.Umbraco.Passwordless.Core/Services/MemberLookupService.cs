@@ -17,6 +17,7 @@ internal sealed class MemberLookupService : IMemberLookupService
 
     public async Task<MemberIdentityUser?> FindApprovedByUserHandleAsync(byte[] userHandle, CancellationToken ct = default)
     {
+        if (userHandle.Length != 16) return null;
         var memberKey = new Guid(userHandle);
         var member = await _memberManager.FindByIdAsync(memberKey.ToString());
         if (member is null || !member.IsApproved || member.IsLockedOut) return null;

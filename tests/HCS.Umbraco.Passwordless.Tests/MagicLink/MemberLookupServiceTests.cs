@@ -84,4 +84,19 @@ public class MemberLookupServiceTests
 
         result.Should().BeNull();
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(15)]
+    [InlineData(17)]
+    [InlineData(32)]
+    public async Task FindApprovedByUserHandleAsync_ReturnsNull_WhenHandleLengthIsNot16(int length)
+    {
+        var handle = new byte[length];
+
+        var result = await _sut.FindApprovedByUserHandleAsync(handle);
+
+        result.Should().BeNull();
+        await _memberManager.DidNotReceive().FindByIdAsync(Arg.Any<string>());
+    }
 }
