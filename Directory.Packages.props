@@ -10,14 +10,6 @@
     <PackageVersion Include="Umbraco.Cms.Infrastructure" Version="[17.3.5, 18.0.0)" />
     <PackageVersion Include="uSync" Version="[17.0.0, 18.0.0)" />
   </ItemGroup>
-  <!-- ASP.NET Core / Extensions -->
-  <ItemGroup>
-    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.4" />
-    <PackageVersion Include="Microsoft.AspNetCore.DataProtection" Version="10.0.4" />
-    <PackageVersion Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.4" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.0" />
-  </ItemGroup>
   <!-- EF Core (test project only — not in the RCL) -->
   <ItemGroup>
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.0" />

@@ -61,7 +61,7 @@ public class EmailNotificationSenderTests
         await _emailSender.Received(1).SendAsync(
             Arg.Any<EmailMessage>(),
             "Passwordless.MagicLink",
-            false);
+            false, null);
     }
 
     [Fact]

@@ -55,6 +55,6 @@ internal sealed class EmailOtpNotificationSender : IOtpNotificationSender
             true,
             null);
 
-        await _email.SendAsync(msg, emailType: "Passwordless.Otp", enableNotification: false);
+        await _email.SendAsync(msg, emailType: "Passwordless.Otp", enableNotification: false, null);
     }
 }

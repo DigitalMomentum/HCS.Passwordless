@@ -49,6 +49,6 @@ internal sealed class EmailNotificationSender : IPasswordlessNotificationSender
             true,
             null);
 
-        await _email.SendAsync(msg, emailType: "Passwordless.MagicLink", enableNotification: false);
+        await _email.SendAsync(msg, emailType: "Passwordless.MagicLink", enableNotification: false, null);
     }
 }

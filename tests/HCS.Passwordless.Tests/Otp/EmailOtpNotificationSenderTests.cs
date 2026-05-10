@@ -71,7 +71,7 @@ public class EmailOtpNotificationSenderTests
         await _emailSender.Received(1).SendAsync(
             Arg.Any<EmailMessage>(),
             "Passwordless.Otp",
-            false);
+            false, null);
     }
 
     [Fact]
