@@ -27,6 +27,7 @@ internal sealed class AddPasswordlessMemberCredentials : MigrationBase
             .WithColumn("CreatedUtc").AsDateTime().NotNullable()
             .WithColumn("LastUsedUtc").AsDateTime().Nullable()
             .WithColumn("AttestationFormat").AsString(32).Nullable()
+            .WithColumn("HasEverIncrementedCounter").AsBoolean().NotNullable().WithDefaultValue(false)
             .Do();
 
         Create.Index("UX_Passwordless_MemberCredentials_CredentialId")
