@@ -1,3 +1,11 @@
+---
+nodeName: "Concepts"
+metaTitle: "Concepts: Passwordless Authentication Explained | HCS Passwordless for Umbraco"
+metaDescription: "New to passwordless auth? Learn how magic links, one-time passwords, and passkeys work — and how to choose the right approach for your Umbraco site."
+articleTitle: "Concepts: What is Passwordless Authentication?"
+tagline: "Understand the why before you dive into the how."
+---
+
 # Concepts: What is Passwordless Authentication?
 
 ## The problem with passwords

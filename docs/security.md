@@ -1,3 +1,11 @@
+---
+nodeName: "Security"
+metaTitle: "Security | HCS Passwordless for Umbraco"
+metaDescription: "How HCS Passwordless protects your Umbraco members: rate limiting, timing attack protection, token hashing, single-use enforcement, return URL validation, and WebAuthn phishing resistance."
+articleTitle: "Security"
+tagline: "Defence in depth, documented honestly."
+---
+
 # Security
 
 This page explains the security features built into the library. Most of these work automatically — you don't need to configure anything — but understanding them is useful if you're evaluating the library or conducting a security review.

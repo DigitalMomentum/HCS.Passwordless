@@ -1,3 +1,11 @@
+---
+nodeName: "Advanced"
+metaTitle: "Advanced: Custom Services & Events | HCS Passwordless for Umbraco"
+metaDescription: "Replace any built-in HCS Passwordless service with your own: custom email senders, token stores, rate limiters, attempt counters, and credential stores. Subscribe to security events."
+articleTitle: "Advanced: Custom Services and Events"
+tagline: "Swap out any built-in piece for your own implementation."
+---
+
 # Advanced: Custom Services and Events
 
 The library is designed to be extensible. Every major service has an interface that you can replace with your own implementation — useful when you want to send OTPs via SMS instead of email, store tokens in a database instead of the cache, or react to security events.

@@ -1,3 +1,11 @@
+---
+nodeName: "Email Templates"
+metaTitle: "Email Templates | HCS Passwordless for Umbraco"
+metaDescription: "Customise the magic link and OTP emails your Umbraco members receive. Override the default Razor templates or replace the email sender entirely."
+articleTitle: "Email Templates"
+tagline: "Your brand in every authentication email."
+---
+
 # Email Templates
 
 The library ships with default email templates for both magic link and OTP sign-in. They're functional and branded with your `ProductName`, but you'll probably want to match your site's design. This page explains how to override them.

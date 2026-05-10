@@ -1,3 +1,11 @@
+---
+nodeName: "Configuration"
+metaTitle: "Configuration Reference | HCS Passwordless for Umbraco"
+metaDescription: "Complete appsettings.json reference for HCS Passwordless. All keys with defaults for magic link, OTP, WebAuthn, rate limits, and notifications."
+articleTitle: "Configuration Reference"
+tagline: "Every setting, its default, and what it does."
+---
+
 # Configuration Reference
 
 All configuration lives under the `HCS:Authentication` section in `appsettings.json`. There are no backoffice settings — everything is file-based.

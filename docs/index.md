@@ -1,3 +1,11 @@
+---
+nodeName: "Passwordless Auth"
+metaTitle: "HCS Passwordless for Umbraco | Passwordless Member Authentication"
+metaDescription: "Add passwordless member authentication to your Umbraco site with magic links, one-time passwords, and passkeys. No passwords, no resets, no friction."
+articleTitle: "HCS Passwordless for Umbraco"
+tagline: "No passwords. No resets. No friction."
+---
+
 # HCS Passwordless for Umbraco
 
 Welcome! This library adds **passwordless member authentication** to your Umbraco 13 site. Instead of asking your members to create and remember a password, you let them sign in via a magic email link, a one-time code, or a passkey (fingerprint, Face ID, or hardware key).

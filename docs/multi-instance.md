@@ -1,3 +1,11 @@
+---
+nodeName: "Multi-Instance Deployments"
+metaTitle: "Multi-Instance Deployments | HCS Passwordless for Umbraco"
+metaDescription: "Run HCS Passwordless on multiple Umbraco instances behind a load balancer. Redis and SQL Server implementations for token replay protection, OTP lockout, and WebAuthn challenges."
+articleTitle: "Multi-Instance Deployments"
+tagline: "Scale out without sacrificing security guarantees."
+---
+
 # Multi-Instance Deployments
 
 > **Startup warning:** When the application starts, the library checks whether `IDistributedCache` resolves to the default `MemoryDistributedCache`. If it does, a `Warning`-level log message is emitted to remind you to configure a shared cache before deploying to a multi-node environment. If you are intentionally running a single instance you can safely ignore this message (or suppress it by setting the log level for `HCS.Passwordless` to `Error`).

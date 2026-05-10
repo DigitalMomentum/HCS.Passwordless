@@ -1,3 +1,11 @@
+---
+nodeName: "Magic Link"
+metaTitle: "Magic Link Authentication | HCS Passwordless for Umbraco"
+metaDescription: "Set up magic link sign-in for Umbraco members. One-click email authentication with token hashing, single-use enforcement, and rate limiting built in."
+articleTitle: "Magic Link Authentication"
+tagline: "Email is the password. Click the link, you're in."
+---
+
 # Magic Link Authentication
 
 A magic link is a one-click sign-in link sent to the member's email address. The member doesn't need to remember a password — their email inbox is the proof of identity.

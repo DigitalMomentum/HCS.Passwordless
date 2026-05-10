@@ -1,3 +1,11 @@
+---
+nodeName: "API Reference"
+metaTitle: "API Reference | HCS Passwordless for Umbraco"
+metaDescription: "Full HTTP endpoint reference for all HCS Passwordless authentication factors: magic link, OTP, WebAuthn sign-in, registration, and credential management."
+articleTitle: "API Reference"
+tagline: "Every endpoint, every request, every response."
+---
+
 # API Reference
 
 All endpoints are conventional HTTP JSON APIs registered on your Umbraco site. They share these characteristics:
