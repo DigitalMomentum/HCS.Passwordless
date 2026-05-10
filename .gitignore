@@ -57,3 +57,6 @@ desktop.ini
 
 # Local working notes (never commit)
 *.local.md
+
+# Blog drafts (local only, not for repo)
+_blog-drafts/
