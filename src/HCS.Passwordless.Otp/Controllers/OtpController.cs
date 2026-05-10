@@ -13,13 +13,12 @@ using HCS.Passwordless.RateLimiting;
 using HCS.Passwordless.Security.TokenProviders;
 using HCS.Passwordless.Services;
 using Umbraco.Cms.Core.Security;
-using Umbraco.Cms.Web.Common.Controllers;
 
 namespace HCS.Passwordless.Otp.Controllers;
 
 [ApiController]
 [Route("auth/otp")]
-public class OtpController : UmbracoApiController
+public class OtpController : ControllerBase
 {
     private readonly IMemberLookupService _lookup;
     private readonly UserManager<MemberIdentityUser> _users;

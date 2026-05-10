@@ -1,6 +1,6 @@
 # HCS Passwordless for Umbraco
 
-Passwordless member authentication for **Umbraco 13**, distributed as NuGet packages. Three pluggable authentication methods — magic links, one-time passwords (OTP), and WebAuthn/FIDO2 passkeys — can be used individually or together.
+Passwordless member authentication for **Umbraco 17**, distributed as NuGet packages. Three pluggable authentication methods — magic links, one-time passwords (OTP), and WebAuthn/FIDO2 passkeys — can be used individually or together.
 
 ## Packages
 
@@ -12,8 +12,8 @@ Passwordless member authentication for **Umbraco 13**, distributed as NuGet pack
 
 ## Requirements
 
-- .NET 8.0
-- Umbraco 13.x
+- .NET 10.0
+- Umbraco 17.x
 - An existing Umbraco member type
 
 ## Quick Start

@@ -17,14 +17,13 @@ using HCS.Passwordless.WebAuthn.Services;
 using HCS.Passwordless.WebAuthn.Storage;
 using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Security;
-using Umbraco.Cms.Web.Common.Controllers;
 using Microsoft.Extensions.Logging;
 
 namespace HCS.Passwordless.WebAuthn.Controllers;
 
 [ApiController]
 [Route("auth/webauthn")]
-public partial class WebAuthnController : UmbracoApiController
+public partial class WebAuthnController : ControllerBase
 {
     private readonly IMemberManager _memberManager;
     private readonly IMemberLookupService _lookup;

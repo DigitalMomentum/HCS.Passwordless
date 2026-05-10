@@ -40,14 +40,13 @@ internal sealed class MigrationStartedHandler : INotificationAsyncHandler<Umbrac
         _runtimeState = runtimeState;
     }
 
-    public Task HandleAsync(UmbracoApplicationStartedNotification notification, CancellationToken ct)
+    public async Task HandleAsync(UmbracoApplicationStartedNotification notification, CancellationToken ct)
     {
-        if (_runtimeState.Level < RuntimeLevel.Run) return Task.CompletedTask;
+        if (_runtimeState.Level < RuntimeLevel.Run) return;
 
         var plan = new PasswordlessMigrationPlan();
         var upgrader = new Upgrader(plan);
-        upgrader.Execute(_executor, _scopeProvider, _keyValue);
-        return Task.CompletedTask;
+        await upgrader.ExecuteAsync(_executor, _scopeProvider, _keyValue);
     }
 }
 

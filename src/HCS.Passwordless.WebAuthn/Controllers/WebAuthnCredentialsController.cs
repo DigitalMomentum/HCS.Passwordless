@@ -6,14 +6,13 @@ using HCS.Passwordless.WebAuthn.Configuration;
 using HCS.Passwordless.WebAuthn.Dtos;
 using HCS.Passwordless.WebAuthn.Storage;
 using Umbraco.Cms.Core.Security;
-using Umbraco.Cms.Web.Common.Controllers;
 
 namespace HCS.Passwordless.WebAuthn.Controllers;
 
 [ApiController]
 [Route("auth/webauthn/credentials")]
 [Authorize]
-public class WebAuthnCredentialsController : UmbracoApiController
+public class WebAuthnCredentialsController : ControllerBase
 {
     private readonly IMemberManager _memberManager;
     private readonly IMemberCredentialStore _store;

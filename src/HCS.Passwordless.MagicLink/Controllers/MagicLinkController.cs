@@ -13,13 +13,12 @@ using HCS.Passwordless.RateLimiting;
 using HCS.Passwordless.Security.TokenProviders;
 using HCS.Passwordless.Services;
 using Umbraco.Cms.Core.Security;
-using Umbraco.Cms.Web.Common.Controllers;
 
 namespace HCS.Passwordless.MagicLink.Controllers;
 
 [ApiController]
 [Route("auth/magic-link")]
-public partial class MagicLinkController : UmbracoApiController
+public partial class MagicLinkController : ControllerBase
 {
     private readonly IMemberLookupService _lookup;
     private readonly UserManager<MemberIdentityUser> _users;

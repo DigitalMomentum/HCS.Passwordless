@@ -2,7 +2,7 @@
 
 ## What this is
 
-A HCS-branded NuGet library suite for passwordless Umbraco 13 member authentication. Four packages: a shared core (infrastructure only), magic link, OTP add-on, and WebAuthn add-on. All delivered via NuGet; the demo site is for manual verification only.
+A HCS-branded NuGet library suite for passwordless Umbraco 17 member authentication. Four packages: a shared core (infrastructure only), magic link, OTP add-on, and WebAuthn add-on. All delivered via NuGet; the demo site is for manual verification only.
 
 ## Solution layout
 
@@ -88,8 +88,8 @@ Default templates ship inside the RCL at `Views/Emails/Passwordless/`. Host proj
 
 ## Target framework / SDK
 
-- All packages: `net8.0`, `Microsoft.NET.Sdk.Razor`
-- Umbraco version range: `[13.0, 14.0)` — do not bump to Umbraco 14 without a separate branch/package.
+- All packages: `net10.0`, `Microsoft.NET.Sdk.Razor`
+- Umbraco version range: `[17.3.5, 18.0.0)` — do not bump to Umbraco 18 without a separate branch/package.
 
 ## Packaging
 

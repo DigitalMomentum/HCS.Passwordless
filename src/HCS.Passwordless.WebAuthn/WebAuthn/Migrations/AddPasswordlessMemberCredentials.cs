@@ -3,13 +3,13 @@ using Umbraco.Cms.Infrastructure.Persistence.DatabaseModelDefinitions;
 
 namespace HCS.Passwordless.WebAuthn.Migrations;
 
-internal sealed class AddPasswordlessMemberCredentials : MigrationBase
+internal sealed class AddPasswordlessMemberCredentials : AsyncMigrationBase
 {
     public AddPasswordlessMemberCredentials(IMigrationContext context) : base(context) { }
 
-    protected override void Migrate()
+    protected override Task MigrateAsync()
     {
-        if (TableExists("Passwordless_MemberCredentials")) return;
+        if (TableExists("Passwordless_MemberCredentials")) return Task.CompletedTask;
 
         Create.Table("Passwordless_MemberCredentials")
             .WithColumn("Id").AsGuid().PrimaryKey().WithDefaultValue(SystemMethods.NewGuid)
@@ -35,5 +35,7 @@ internal sealed class AddPasswordlessMemberCredentials : MigrationBase
             .OnColumn("CredentialId")
             .Unique()
             .Do();
+
+        return Task.CompletedTask;
     }
 }
