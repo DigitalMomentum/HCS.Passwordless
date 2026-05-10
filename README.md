@@ -113,6 +113,15 @@ Default templates are Razor partials shipped in the RCL. Override any template b
 - `Views/Emails/Passwordless/Otp.Text.cshtml`
 - `Views/Emails/Passwordless/_Layout.cshtml`
 
+## Branches
+
+| Branch | Umbraco | .NET | Status |
+|--------|---------|------|--------|
+| `dev/v1` | 13.x | 8 | Active development |
+| `dev/v2` | 17.x | TBD | In progress |
+
+`main` always reflects the latest published release.
+
 ## Project Structure
 
 ```
