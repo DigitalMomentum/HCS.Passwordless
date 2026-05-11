@@ -63,7 +63,6 @@ app.MapPasswordlessMembers();
 
 ```cshtml
 @await Html.PartialAsync("Passwordless/LoginForm")
-@await Html.PartialAsync("Passwordless/MagicLinkLanding")
 ```
 
 ## Configuration Options
@@ -99,7 +98,8 @@ All endpoints are prefixed by `BasePath` (default `/umbraco/passwordless`).
 | Method | Path | Description |
 |--------|------|-------------|
 | `POST` | `/magic-link/request` | Request a magic link email |
-| `GET` | `/magic-link/verify` | Verify token and sign in |
+| `GET` | `/magic-link/verify` | Show sign-in confirmation page |
+| `POST` | `/magic-link/verify` | Validate token and sign in |
 
 ## Customising Email Templates
 
@@ -115,7 +115,7 @@ Views/
   Shared/
     Passwordless/
       LoginForm.cshtml        # Login form partial
-      MagicLinkLanding.cshtml # "Check your email" page partial
+      MagicLinkConfirm.cshtml # Sign-in confirmation page (shown when link is clicked)
 ```
 
 ## Replacing Services
