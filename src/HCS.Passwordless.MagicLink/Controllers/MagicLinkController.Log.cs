@@ -30,4 +30,7 @@ public partial class MagicLinkController
 
     [LoggerMessage(Level = LogLevel.Information, Message = "MagicLink verify: sign-in complete — redirecting to {Safe}")]
     private partial void LogVerifySignedInAndRedirecting(string safe);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "MagicLink verify: showing confirmation page email={Email} returnUrl={ReturnUrl}")]
+    private partial void LogVerifyShowingConfirmPage(string? email, string? returnUrl);
 }
