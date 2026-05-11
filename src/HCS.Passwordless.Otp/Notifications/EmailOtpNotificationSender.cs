@@ -46,7 +46,7 @@ internal sealed class EmailOtpNotificationSender : IOtpNotificationSender
 
         var msg = new EmailMessage(
             notifications.FromAddress,
-            new[] { member.Email! },
+            [member.Email!],
             null,
             null,
             null,
