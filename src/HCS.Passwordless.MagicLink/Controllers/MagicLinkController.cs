@@ -10,7 +10,6 @@ using HCS.Passwordless.MagicLink.Models;
 using HCS.Passwordless.Endpoints.Dtos;
 using HCS.Passwordless.Endpoints.Shared;
 using HCS.Passwordless.Notifications;
-using HCS.Passwordless.MagicLink.Notifications;
 using HCS.Passwordless.RateLimiting;
 using HCS.Passwordless.Security.TokenProviders;
 using HCS.Passwordless.Services;
