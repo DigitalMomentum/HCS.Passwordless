@@ -154,4 +154,4 @@ Then open `https://localhost:44391` and complete the Umbraco install. The demo e
 
 ## License
 
-MIT — HCS Ltd / Nik Rimington
+MIT — Nik Rimington
