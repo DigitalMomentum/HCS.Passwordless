@@ -421,6 +421,126 @@ export function initCredentialList(containerEl) {
     containerEl.addEventListener('pwl:passkey-registered', load);
 }
 
+// Standalone magic-link-only form.
+// Expected structure: a <form> containing [name="email"], #pwl-btn-magic-link, #pwl-message.
+// data-return-url and data-pwl-base are read from the form element.
+export function initMagicLinkForm(formEl) {
+    if (!formEl) return;
+
+    const base = formEl.dataset.pwlBase || '/auth';
+    const getEmail = () => formEl.querySelector('[name="email"]')?.value?.trim() ?? '';
+    const getReturnUrl = () => formEl.dataset.returnUrl ?? '';
+    const msgEl = formEl.querySelector('#pwl-message');
+
+    function showMessage(text, isError) {
+        if (!msgEl) return;
+        msgEl.textContent = text;
+        msgEl.style.color = isError ? '#c00' : '#080';
+    }
+
+    formEl.querySelector('#pwl-btn-magic-link')?.addEventListener('click', async function () {
+        const email = getEmail();
+        if (!email) { showMessage('Please enter your email address.', true); return; }
+        showMessage('');
+        this.disabled = true;
+        try {
+            const token = formEl.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+            const resp = await fetch(`${base}/magic-link/request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+                body: JSON.stringify({ email, returnUrl: getReturnUrl() }),
+            });
+            showMessage(resp.ok ? 'Check your email for a sign-in link.' : 'Something went wrong. Please try again.', !resp.ok);
+        } catch {
+            showMessage('Network error. Please try again.', true);
+        } finally {
+            this.disabled = false;
+        }
+    });
+}
+
+// Standalone OTP-only login flow.
+// Expected structure: a container <div> with data-return-url, data-pwl-base containing:
+//   - a <form> with [name="email"], #pwl-btn-otp, #pwl-otp-request-msg
+//   - #pwl-otp-section (hidden) containing OtpForm partial (#pwl-otp-form, #pwl-otp-code, #pwl-otp-message)
+export function initOtpLoginForm(containerEl) {
+    if (!containerEl) return;
+
+    const base = containerEl.dataset.pwlBase || '/auth';
+    const getEmail = () => containerEl.querySelector('[name="email"]')?.value?.trim() ?? '';
+    const getReturnUrl = () => containerEl.dataset.returnUrl ?? '';
+    const requestForm = containerEl.querySelector('form');
+    const otpSection = containerEl.querySelector('#pwl-otp-section');
+    const requestMsgEl = containerEl.querySelector('#pwl-otp-request-msg');
+
+    function showRequestMsg(text, isError) {
+        if (!requestMsgEl) return;
+        requestMsgEl.textContent = text;
+        requestMsgEl.style.color = isError ? '#c00' : '#080';
+    }
+
+    containerEl.querySelector('#pwl-btn-otp')?.addEventListener('click', async function () {
+        const email = getEmail();
+        if (!email) { showRequestMsg('Please enter your email address.', true); return; }
+        showRequestMsg('');
+        this.disabled = true;
+        try {
+            const token = requestForm?.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+            const resp = await fetch(`${base}/otp/request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+                body: JSON.stringify({ email, returnUrl: getReturnUrl() }),
+            });
+            if (resp.ok) {
+                if (otpSection) {
+                    otpSection.style.display = '';
+                    const otpForm = otpSection.querySelector('#pwl-otp-form');
+                    if (otpForm) otpForm.style.display = '';
+                }
+                showRequestMsg('A one-time code has been sent to your email.');
+            } else {
+                showRequestMsg('Something went wrong. Please try again.', true);
+            }
+        } catch {
+            showRequestMsg('Network error. Please try again.', true);
+        } finally {
+            this.disabled = false;
+        }
+    });
+
+    otpSection?.querySelector('#pwl-otp-form')?.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const code = this.querySelector('#pwl-otp-code')?.value?.trim() ?? '';
+        const otpMsgEl = this.querySelector('#pwl-otp-message');
+        const showOtpMsg = (text, isError) => {
+            if (!otpMsgEl) return;
+            otpMsgEl.textContent = text;
+            otpMsgEl.style.color = isError ? '#c00' : '#080';
+        };
+        if (!code) { showOtpMsg('Please enter the code.', true); return; }
+        const submitBtn = this.querySelector('[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+        try {
+            const token = this.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+            const resp = await fetch(`${base}/otp/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token },
+                body: JSON.stringify({ email: getEmail(), code, returnUrl: getReturnUrl() }),
+            });
+            const data = await resp.json();
+            if (data.success) {
+                window.location.href = data.redirectTo || getReturnUrl() || '/';
+            } else {
+                showOtpMsg(data.error || 'Invalid code. Please try again.', true);
+            }
+        } catch {
+            showOtpMsg('Network error. Please try again.', true);
+        } finally {
+            if (submitBtn) submitBtn.disabled = false;
+        }
+    });
+}
+
 function bufferToB64u(buf) {
     const bytes = new Uint8Array(buf);
     let s = '';
