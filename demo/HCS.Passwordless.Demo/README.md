@@ -1,10 +1,10 @@
 # HCS.Passwordless.Demo
 
-Full Umbraco 13 demo site that exercises all three authentication methods — magic links, OTP, and WebAuthn passkeys. For local development and manual verification only; not shipped as a NuGet package.
+Full Umbraco 17 demo site that exercises all three authentication methods — magic links, OTP, and WebAuthn passkeys. For local development and manual verification only; not shipped as a NuGet package.
 
 ## Prerequisites
 
-- .NET 8.0 SDK
+- .NET 10.0 SDK
 - No other dependencies — uses SQLite embedded database
 
 ## Running
@@ -26,25 +26,23 @@ Open the URL shown in the console (typically `https://localhost:44391`). On firs
 
 ## Enabling WebAuthn
 
-WebAuthn is disabled by default because it requires a proper origin. To enable it locally:
+WebAuthn is disabled in `appsettings.json` (`Enabled: false`) but is already enabled in `appsettings.Development.json` for local development. When the `Development` environment is active, WebAuthn will be available on `https://localhost:61188`.
 
-1. Edit `appsettings.Development.json`:
+If the port differs on your machine, update `Origins` in `appsettings.Development.json`:
 
 ```json
 {
   "HCS": {
     "Authentication": {
       "WebAuthn": {
-        "Enabled": true,
-        "RpName": "Passwordless Demo",
-        "Origins": [ "https://localhost:44391" ]
+        "Origins": [ "https://localhost:YOUR_PORT" ]
       }
     }
   }
 }
 ```
 
-2. Restart the demo site.
+Restart the demo site after changing the port.
 
 ## Creating a Test Member
 

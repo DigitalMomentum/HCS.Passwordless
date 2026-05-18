@@ -4,7 +4,7 @@ WebAuthn / FIDO2 passkey add-on for `HCS.Passwordless`. Enables hardware-backed 
 
 ## Requirements
 
-- Umbraco 17 (`[17.0, 18.0)`)
+- Umbraco 17.3.5 or later (`[17.3.5, 18.0.0)`)
 - A browser that supports WebAuthn (all modern browsers)
 - `HCS.Passwordless.Core` is pulled in automatically as a transitive dependency
 
@@ -62,7 +62,7 @@ builder.CreateUmbracoBuilder()
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `Enabled` | bool | `false` | Enable/disable WebAuthn flow |
-| `RpName` | string | — | Relying party display name shown to the user |
+| `RpName` | string | `Umbraco Site` | Relying party display name shown to the user |
 | `Origins` | string[] | `[]` | Allowed origins (must match browser origin exactly) |
 
 ## Endpoints

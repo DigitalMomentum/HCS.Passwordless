@@ -49,7 +49,6 @@ builder.CreateUmbracoBuilder()
     "Authentication": {
       "LoginPath": "/login",
       "PostLoginRedirectPath": "/member",
-      "RejectUnknownEmails": false,
       "MagicLink": {
         "Enabled": true,
         "TokenLifespan": "00:15:00",
@@ -66,10 +65,17 @@ builder.CreateUmbracoBuilder()
 
 ### 4. Add login UI
 
-In your login view, render the built-in partial:
+In your login view, render the built-in partials for the factors you've installed:
 
 ```cshtml
-@await Html.PartialAsync("Passwordless/LoginForm")
+@* Magic link request form *@
+@await Html.PartialAsync("Passwordless/MagicLinkForm")
+
+@* OTP request and code-entry form *@
+@await Html.PartialAsync("Passwordless/OtpLoginForm")
+
+@* Passkey sign-in button *@
+@await Html.PartialAsync("Passwordless/PasskeySignInButton")
 ```
 
 ## Authentication Methods

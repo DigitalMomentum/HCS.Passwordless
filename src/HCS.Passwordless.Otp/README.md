@@ -4,7 +4,7 @@ OTP (One-Time Password) add-on for `HCS.Passwordless`. Delivers a short numeric 
 
 ## Requirements
 
-- Umbraco 17 (`[17.0, 18.0)`)
+- Umbraco 17.3.5 or later (`[17.3.5, 18.0.0)`)
 - `HCS.Passwordless.Core` is pulled in automatically as a transitive dependency
 
 ## Installation
@@ -37,7 +37,8 @@ builder.CreateUmbracoBuilder()
         "CodeLength": 6,
         "MaxAttempts": 5,
         "LockoutDuration": "00:15:00",
-        "NotificationSubject": "Your sign-in code"
+        "NotificationSubject": "Your sign-in code",
+        "NotificationPartial": "Emails/Passwordless/Otp"
       }
     }
   }
@@ -61,7 +62,8 @@ builder.CreateUmbracoBuilder()
 | `CodeLength` | int | `6` | Number of digits in the code |
 | `MaxAttempts` | int | `5` | Failed attempts before lockout |
 | `LockoutDuration` | TimeSpan | `00:15:00` | How long the lockout lasts |
-| `NotificationSubject` | string | — | Email subject line |
+| `NotificationSubject` | string | `Your sign-in code` | Email subject line |
+| `NotificationPartial` | string | `Emails/Passwordless/Otp` | Razor partial path for the OTP email body |
 
 ## Endpoints
 
@@ -88,4 +90,4 @@ Views/
 |-----------|---------|---------|
 | `IOtpNotificationSender` | `EmailOtpNotificationSender` | Send OTP emails |
 | `IOtpCodeStore` | `DistributedCacheOtpCodeStore` | Store OTP codes |
-| `IAttemptCounter` | `DistributedCacheAttemptCounter` | Track failed attempts |
+| `IAttemptCounter` | `InMemoryAttemptCounter` | Track failed attempts |
