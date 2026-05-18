@@ -4,7 +4,7 @@ OTP (One-Time Password) add-on for `HCS.Passwordless`. Delivers a short numeric 
 
 ## Requirements
 
-- Umbraco 13 (`[13.0, 14.0)`)
+- Umbraco 17 (`[17.0, 18.0)`)
 - `HCS.Passwordless.Core` is pulled in automatically as a transitive dependency
 
 ## Installation
@@ -25,14 +25,7 @@ builder.CreateUmbracoBuilder()
     .Build();
 ```
 
-### 2. Map endpoints (`Program.cs`)
-
-```csharp
-app.MapPasswordlessMembers()
-    .WithOtp();
-```
-
-### 3. Configure (`appsettings.json`)
+### 2. Configure (`appsettings.json`)
 
 ```json
 {
@@ -51,7 +44,7 @@ app.MapPasswordlessMembers()
 }
 ```
 
-### 4. OTP form partial
+### 3. OTP form partial
 
 ```cshtml
 @await Html.PartialAsync("Passwordless/OtpForm")

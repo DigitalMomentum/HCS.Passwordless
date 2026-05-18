@@ -12,7 +12,7 @@ src/HCS.Passwordless.MagicLink # magic link auth (depends on Core)
 src/HCS.Passwordless.Otp      # add-on — email OTP (depends on Core)
 src/HCS.Passwordless.WebAuthn # add-on — FIDO2 passkeys (depends on Core)
 tests/HCS.Passwordless.Tests  # xUnit suite (~121 tests)
-demo/HCS.Passwordless.Demo    # runnable Umbraco 13 site
+demo/HCS.Passwordless.Demo    # runnable Umbraco 17 site
 ```
 
 ## Build & test
@@ -55,13 +55,7 @@ builder.CreateUmbracoBuilder()
 
 Each `AddX()` method calls `services.AddPasswordlessCoreOnce()` internally, so core infrastructure is registered exactly once regardless of call order or how many add-ons are installed.
 
-Endpoints are mapped separately after `BootUmbracoAsync`:
-
-```csharp
-app.MapPasswordlessMembers()
-    .WithOtp()
-    .WithWebAuthn();
-```
+Endpoints are exposed via standard `[ApiController]` MVC controllers and are auto-discovered by Umbraco's pipeline — no explicit endpoint-mapping call is needed in `Program.cs`.
 
 ## Key abstractions
 

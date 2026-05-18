@@ -1,6 +1,6 @@
 # HCS.Passwordless.MagicLink
 
-Magic link sign-in for Umbraco 13 members. Part of the HCS Passwordless suite. Provides email-based one-click authentication with built-in rate limiting, single-use tokens, and a branded email notification system.
+Magic link sign-in for Umbraco 17 members. Part of the HCS Passwordless suite. Provides email-based one-click authentication with built-in rate limiting, single-use tokens, and a branded email notification system.
 
 ## Installation
 
@@ -20,13 +20,7 @@ builder.CreateUmbracoBuilder()
     .Build();
 ```
 
-### 2. Map endpoints (`Program.cs`)
-
-```csharp
-app.MapPasswordlessMembers();
-```
-
-### 3. Configure (`appsettings.json`)
+### 2. Configure (`appsettings.json`)
 
 ```json
 {
@@ -59,7 +53,7 @@ app.MapPasswordlessMembers();
 }
 ```
 
-### 4. Login view
+### 3. Login view
 
 ```cshtml
 @await Html.PartialAsync("Passwordless/LoginForm")

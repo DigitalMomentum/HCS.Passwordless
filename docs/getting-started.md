@@ -8,11 +8,11 @@ tagline: "From install to your first passwordless sign-in in ten minutes."
 
 # Getting Started
 
-This guide walks you from a blank Umbraco 13 project to a working passwordless sign-in in about ten minutes.
+This guide walks you from a blank Umbraco 17 project to a working passwordless sign-in in about ten minutes.
 
 ## Prerequisites
 
-- Umbraco 13 project (net8.0)
+- Umbraco 17 project (net10.0)
 - An SMTP server or email delivery service configured in Umbraco (for magic link and OTP)
 - Umbraco's distributed cache configured if you plan to use multiple server instances (the default `IDistributedCache` in-memory implementation works fine for single-server deployments)
 
