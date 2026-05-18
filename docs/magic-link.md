@@ -1,9 +1,6 @@
 ---
-nodeName: "Magic Link"
 metaTitle: "Magic Link Authentication | HCS Passwordless for Umbraco"
 metaDescription: "Set up magic link sign-in for Umbraco members. One-click email authentication with token hashing, single-use enforcement, and rate limiting built in."
-articleTitle: "Magic Link Authentication"
-tagline: "Email is the password. Click the link, you're in."
 ---
 
 # Magic Link Authentication

@@ -1,9 +1,6 @@
 ---
-nodeName: "Email Templates"
 metaTitle: "Email Templates | HCS Passwordless for Umbraco"
 metaDescription: "Customise the magic link and OTP emails your Umbraco members receive. Override the default Razor templates or replace the email sender entirely."
-articleTitle: "Email Templates"
-tagline: "Your brand in every authentication email."
 ---
 
 # Email Templates

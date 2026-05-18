@@ -1,9 +1,6 @@
 ---
-nodeName: "One-Time Password"
 metaTitle: "One-Time Password (OTP) Authentication | HCS Passwordless for Umbraco"
 metaDescription: "Add email OTP sign-in to your Umbraco site. Six-digit codes with configurable expiry, attempt limits, lockout, and rate limiting."
-articleTitle: "One-Time Password (OTP) Authentication"
-tagline: "A code in the inbox. Type it in, you're signed in."
 ---
 
 # One-Time Password (OTP) Authentication

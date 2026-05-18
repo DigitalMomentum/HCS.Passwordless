@@ -1,9 +1,6 @@
 ---
-nodeName: "Getting Started"
 metaTitle: "Getting Started | HCS Passwordless for Umbraco"
 metaDescription: "Install HCS Passwordless and add passwordless sign-in to your Umbraco site in about ten minutes. Step-by-step guide for magic link, OTP, and passkey setup."
-articleTitle: "Getting Started"
-tagline: "From install to your first passwordless sign-in in ten minutes."
 ---
 
 # Getting Started
