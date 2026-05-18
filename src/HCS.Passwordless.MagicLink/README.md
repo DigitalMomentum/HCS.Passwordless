@@ -28,7 +28,6 @@ builder.CreateUmbracoBuilder()
     "Authentication": {
       "LoginPath": "/login",
       "PostLoginRedirectPath": "/member",
-      "RejectUnknownEmails": false,
       "MagicLink": {
         "Enabled": true,
         "TokenLifespan": "00:15:00"
@@ -56,7 +55,7 @@ builder.CreateUmbracoBuilder()
 ### 3. Login view
 
 ```cshtml
-@await Html.PartialAsync("Passwordless/LoginForm")
+@await Html.PartialAsync("Passwordless/MagicLinkForm")
 ```
 
 ## Configuration Options
@@ -67,7 +66,6 @@ builder.CreateUmbracoBuilder()
 |-----|------|---------|-------------|
 | `LoginPath` | string | `/login` | URL of the login page |
 | `PostLoginRedirectPath` | string | `/` | Redirect after successful sign-in |
-| `RejectUnknownEmails` | bool | `false` | Return an error for unrecognised emails (vs. silent success) |
 
 ### `HCS:Authentication:MagicLink`
 
@@ -106,7 +104,7 @@ Views/
       _Layout.cshtml          # Shared email layout
   Shared/
     Passwordless/
-      LoginForm.cshtml        # Login form partial
+      MagicLinkForm.cshtml    # Magic link request form partial
       MagicLinkConfirm.cshtml # Sign-in confirmation page (shown when link is clicked)
 ```
 
@@ -123,7 +121,7 @@ Key replaceable services:
 | Interface | Default implementation | Purpose |
 |-----------|----------------------|---------|
 | `IPasswordlessNotificationSender` | `EmailNotificationSender` | Send magic link emails |
-| `ISingleUseTokenStore` | `DistributedCacheSingleUseTokenStore` | Token persistence |
-| `IPasswordlessRateLimiter` | `SlidingWindowRateLimiter` | Rate limiting |
+| `ISingleUseTokenStore` | `InMemorySingleUseTokenStore` | Token persistence |
+| `IPasswordlessRateLimiter` | `FixedWindowRateLimiter` | Rate limiting |
 | `IMemberLookupService` | `MemberLookupService` | Resolve member by email |
 | `IPasswordlessSignInService` | `PasswordlessSignInService` | Sign in member |

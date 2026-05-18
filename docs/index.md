@@ -8,7 +8,7 @@ tagline: "No passwords. No resets. No friction."
 
 # HCS Passwordless for Umbraco
 
-Welcome! This library adds **passwordless member authentication** to your Umbraco 13 site. Instead of asking your members to create and remember a password, you let them sign in via a magic email link, a one-time code, or a passkey (fingerprint, Face ID, or hardware key).
+Welcome! This library adds **passwordless member authentication** to your Umbraco 17 site. Instead of asking your members to create and remember a password, you let them sign in via a magic email link, a one-time code, or a passkey (fingerprint, Face ID, or hardware key).
 
 No passwords means no password resets, no credential stuffing, and no "I forgot my password" support requests. Members get a smoother login experience, and you get a more secure site.
 

@@ -2,7 +2,7 @@
 
 ## Role
 
-Runnable Umbraco 13 demo site for manual verification. Not packaged or shipped. References all three source packages directly (project references, not NuGet).
+Runnable Umbraco 17 demo site for manual verification. Not packaged or shipped. References all three source packages directly (project references, not NuGet).
 
 ## What this is for
 
@@ -46,9 +46,10 @@ The demo site logs at `Warning` by default. To trace auth flows during developme
 
 ## Demo controller
 
-`DemoController` has two actions:
+`DemoController` has three actions:
 - `Login()` — public, renders the login page
 - `Member()` — protected with `[Authorize]`, renders member details
+- `Logout()` — public, signs out and clears authentication cookies
 
 The `Member` action is the redirect target after successful sign-in (`PostLoginRedirectPath: /member`).
 

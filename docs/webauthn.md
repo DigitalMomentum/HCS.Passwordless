@@ -96,7 +96,7 @@ All options live under `HCS:Authentication:WebAuthn` in `appsettings.json`.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `Enabled` | bool | `true` | Set to `false` to disable WebAuthn entirely |
+| `Enabled` | bool | `true` | Enable or disable WebAuthn sign-in. Startup validation fails unless `DecoyHmacKey` (and `Origins` in production) are also configured. |
 | `RpId` | string | `localhost` | **Your domain name** — e.g. `yoursite.com`. Must match the sign-in origin exactly. No `https://` prefix. |
 | `RpName` | string | `Umbraco Site` | Human-friendly name for your site, shown during passkey prompts |
 | `Origins` | string[] | `[]` | **Full origins** — e.g. `["https://yoursite.com"]`. Must include scheme. Required in production. |
@@ -107,6 +107,10 @@ All options live under `HCS:Authentication:WebAuthn` in `appsettings.json`.
 | `AuthenticatorAttachment` | string? | `null` | `Platform` (biometric/PIN only), `CrossPlatform` (USB keys only), or `null` for any |
 | `ChallengeTtl` | TimeSpan | `00:05:00` | How long a registration or sign-in challenge remains valid |
 | `RequireAtLeastOneNonPasskeyFactor` | bool | `true` | Prevents a member from deleting their last passkey if no other sign-in method is enabled |
+| `TimestampDriftToleranceMs` | int | `300000` | Allowed clock-skew window for WebAuthn timestamp validation in milliseconds. Allowed range: 30 000–600 000 ms (30 s to 10 min). |
+| `SignInOptionsPerIpPerMinute` | int | `10` | Maximum sign-in options requests per IP address per minute |
+| `SignInCompletePerIpPerMinute` | int | `5` | Maximum sign-in complete requests per IP address per minute |
+| `DecoyHmacKey` | string | `null` | **Required.** Secret key (≥ 16 bytes UTF-8) used to generate decoy credential IDs for email-enumeration protection. Set this to a random value; startup validation fails if absent or too short. |
 
 ```json
 "WebAuthn": {
@@ -115,7 +119,8 @@ All options live under `HCS:Authentication:WebAuthn` in `appsettings.json`.
     "RpName": "Your Site",
     "Origins": [ "https://yoursite.com" ],
     "UserVerification": "Required",
-    "ResidentKey": "Required"
+    "ResidentKey": "Required",
+    "DecoyHmacKey": "REPLACE-WITH-A-RANDOM-SECRET-AT-LEAST-16-BYTES"
 }
 ```
 

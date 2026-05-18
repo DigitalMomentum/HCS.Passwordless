@@ -18,14 +18,12 @@ All configuration lives under the `HCS:Authentication` section in `appsettings.j
     "Authentication": {
       "LoginPath": "/login",
       "PostLoginRedirectPath": "/member",
-
       "RateLimits": {
         "PerIpRequestsPerMinute": 10,
         "PerEmailRequestsPerHour": 5,
         "VerifyPerIpPerMinute": 20,
         "FakeWorkDelay": "00:00:00.250"
       },
-
       "Notifications": {
         "FromAddress": "noreply@yoursite.com",
         "FromName": "Your Site",
@@ -38,13 +36,11 @@ All configuration lives under the `HCS:Authentication` section in `appsettings.j
           "FooterHtml": "<p>© 2025 Your Company Ltd</p>"
         }
       },
-
       "MagicLink": {
         "Enabled": true,
         "TokenLifespan": "00:15:00",
         "SingleUse": true
       },
-
       "Otp": {
         "Enabled": true,
         "TokenLifespan": "00:05:00",
@@ -54,7 +50,6 @@ All configuration lives under the `HCS:Authentication` section in `appsettings.j
         "NotificationSubject": "Your sign-in code",
         "NotificationPartial": "Emails/Passwordless/Otp"
       },
-
       "WebAuthn": {
         "Enabled": true,
         "RpId": "yoursite.com",
@@ -66,7 +61,11 @@ All configuration lives under the `HCS:Authentication` section in `appsettings.j
         "ResidentKey": "Required",
         "AuthenticatorAttachment": null,
         "ChallengeTtl": "00:05:00",
-        "RequireAtLeastOneNonPasskeyFactor": true
+        "RequireAtLeastOneNonPasskeyFactor": true,
+        "TimestampDriftToleranceMs": 300000,
+        "SignInOptionsPerIpPerMinute": 10,
+        "SignInCompletePerIpPerMinute": 5,
+        "DecoyHmacKey": "REPLACE-WITH-A-RANDOM-SECRET-AT-LEAST-16-BYTES"
       }
     }
   }
@@ -153,7 +152,7 @@ These apply to all factors.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| `Enabled` | bool | `true` | Enable or disable WebAuthn sign-in |
+| `Enabled` | bool | `true` | Enable or disable WebAuthn sign-in. The C# default is `true`; startup validation will fail unless `DecoyHmacKey` (and `Origins` in production) are also set. |
 | `RpId` | string | `localhost` | Your domain name, e.g. `yoursite.com`. **No** `https://` prefix, no port. Must exactly match the origin. |
 | `RpName` | string | `Umbraco Site` | Human-readable name shown in passkey prompts on the member's device |
 | `Origins` | string[] | `[]` | Full origins that are allowed to participate in WebAuthn ceremonies, e.g. `["https://yoursite.com"]`. Required in production. |
@@ -167,6 +166,7 @@ These apply to all factors.
 | `TimestampDriftToleranceMs` | int | `300000` | Allowed clock-skew window for WebAuthn timestamp validation in milliseconds. Allowed range: 30 000–600 000 ms (30 s to 10 min). |
 | `SignInOptionsPerIpPerMinute` | int | `10` | Maximum sign-in options requests per IP address per minute |
 | `SignInCompletePerIpPerMinute` | int | `5` | Maximum sign-in complete requests per IP address per minute |
+| `DecoyHmacKey` | string | `null` | **Required.** Secret key (≥ 16 bytes UTF-8) used to generate decoy credential IDs for email-enumeration protection. Set this to a random, operator-specific value — startup validation fails if this is absent or too short when WebAuthn is enabled. |
 
 > **Restart required for WebAuthn changes:** The library resolves `RpId`, `Origins`, and other WebAuthn settings once at application startup and holds them for the lifetime of the process. This is intentional — origin pinning must not change mid-flight. If you update any value under `HCS:Authentication:WebAuthn`, restart the application for the change to take effect.
 
