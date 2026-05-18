@@ -110,7 +110,7 @@ Default templates are Razor partials shipped in the RCL. Override any template b
 
 | Branch | Umbraco | .NET | Status |
 |--------|---------|------|--------|
-| `dev/v1` | 13.x | 8 | Released — tags on this branch |
+| [`dev/v1`](https://github.com/NikRimington/HCS.Passwordless/tree/dev/v1) | 13.x | 8 | Released — tags on this branch |
 | `dev/v2` | 17.x | 10 | Released — tags on this branch |
 
 Releases are published as NuGet packages and tagged directly on the relevant `dev/` branch. There is no `main` branch.
