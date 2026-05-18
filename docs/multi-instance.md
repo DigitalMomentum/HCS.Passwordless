@@ -1,9 +1,6 @@
 ---
-nodeName: "Multi-Instance Deployments"
 metaTitle: "Multi-Instance Deployments | HCS Passwordless for Umbraco"
 metaDescription: "Run HCS Passwordless on multiple Umbraco instances behind a load balancer. Redis and SQL Server implementations for token replay protection, OTP lockout, and WebAuthn challenges."
-articleTitle: "Multi-Instance Deployments"
-tagline: "Scale out without sacrificing security guarantees."
 ---
 
 # Multi-Instance Deployments

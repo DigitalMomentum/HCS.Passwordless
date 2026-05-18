@@ -1,9 +1,6 @@
 ---
-nodeName: "Passkeys WebAuthn"
 metaTitle: "Passkeys & WebAuthn Authentication | HCS Passwordless for Umbraco"
 metaDescription: "Add passkey (FIDO2/WebAuthn) sign-in to your Umbraco site. Let members authenticate with Face ID, fingerprint, Windows Hello, or a USB security key."
-articleTitle: "Passkeys / WebAuthn Authentication"
-tagline: "Your device is the key. Touch your finger, sign in."
 ---
 
 # Passkeys / WebAuthn Authentication

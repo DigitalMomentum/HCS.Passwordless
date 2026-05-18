@@ -1,9 +1,6 @@
 ---
-nodeName: "Passwordless Auth"
 metaTitle: "HCS Passwordless for Umbraco | Passwordless Member Authentication"
 metaDescription: "Add passwordless member authentication to your Umbraco site with magic links, one-time passwords, and passkeys. No passwords, no resets, no friction."
-articleTitle: "HCS Passwordless for Umbraco"
-tagline: "No passwords. No resets. No friction."
 ---
 
 # HCS Passwordless for Umbraco

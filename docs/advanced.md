@@ -1,9 +1,6 @@
 ---
-nodeName: "Advanced"
 metaTitle: "Advanced: Custom Services & Events | HCS Passwordless for Umbraco"
 metaDescription: "Replace any built-in HCS Passwordless service with your own: custom email senders, token stores, rate limiters, attempt counters, and credential stores. Subscribe to security events."
-articleTitle: "Advanced: Custom Services and Events"
-tagline: "Swap out any built-in piece for your own implementation."
 ---
 
 # Advanced: Custom Services and Events
