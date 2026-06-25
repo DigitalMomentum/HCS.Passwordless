@@ -350,6 +350,7 @@ export function initPasskeyRegister(containerEl) {
                     true);
             }
         } catch (err) {
+            console.error(err);
             showMessage(
                 err.name === 'NotAllowedError'
                     ? 'Passkey creation was cancelled.'
