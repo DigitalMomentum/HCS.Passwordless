@@ -28,7 +28,7 @@ public class EnumAsIntegerJsonAttributeTests
         var routeData = new RouteData();
         var actionDescriptor = new Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor();
         var actionContext = new ActionContext(httpContext, routeData, actionDescriptor);
-        return new ActionExecutedContext(actionContext, [], null)
+        return new ActionExecutedContext(actionContext, [], null!)
         {
             Result = result
         };
@@ -108,7 +108,7 @@ public class EnumAsIntegerJsonAttributeTests
     public void OnActionExecuted_WithNullResult_DoesNotThrow()
     {
         // Arrange
-        var context = CreateActionExecutedContext(null);
+        var context = CreateActionExecutedContext(null!);
 
         // Act
         var action = () => _sut.OnActionExecuted(context);
